@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include <time.h>
 
-int counter_start = 0, counter_end = 0;
+int counter_start = 0, counter_end = 0; /* We need one counter
+                                            variable for each
+                                            instance of the barrier,
+                                            otherwise problems
+                                            are likely to occur. */
 int thread_count;
 pthread_mutex_t barrier_mutex_start, barrier_mutex_end;
 

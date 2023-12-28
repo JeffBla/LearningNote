@@ -39,8 +39,8 @@ void *ThreadTime(void *rank) {
         counter_end = 0;
         pthread_cond_broadcast(&cond_var_end);
     } else {
-        while (pthread_cond_wait(&cond_var_end, &mutex_end))
-            ;
+        while (pthread_cond_wait(&cond_var_end, &mutex_end) != 0)
+            /* pthread_cond_wait => pthread_mutex_unlock(&mutex_p); wait_on_signal(&cond_var_p); pthread_mutex_lock(&mutex_p); */;
     }
     pthread_mutex_unlock(&mutex_end);
 

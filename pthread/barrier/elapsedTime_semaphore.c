@@ -25,7 +25,7 @@ void *ThreadTime(void *rank) {
     } else {
         counter_start++;
         sem_post(&counter_sem_start);
-        sem_wait(&barrier_sem_start);
+        sem_wait(&barrier_sem_start); /* 如果重覆使用這個barrier_sem 可能因為有的thread跑太快再重新進入這裡, 導致錯誤  */
     }
 
     my_start = clock();
