@@ -10,6 +10,9 @@
       <itemPath>setting_hardaware/pin_manager.h</itemPath>
       <itemPath>setting_hardaware/setting.h</itemPath>
       <itemPath>setting_hardaware/uart.h</itemPath>
+      <itemPath>setting_hardaware/tmr1.h</itemPath>
+      <itemPath>setting_hardaware/tmr2.h</itemPath>
+      <itemPath>setting_hardaware/tmr3.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -24,6 +27,9 @@
       <itemPath>setting_hardaware/interrupt_manager.c</itemPath>
       <itemPath>setting_hardaware/setting.c</itemPath>
       <itemPath>setting_hardaware/uart.c</itemPath>
+      <itemPath>setting_hardaware/tmr1.c</itemPath>
+      <itemPath>setting_hardaware/tmr2.c</itemPath>
+      <itemPath>setting_hardaware/tmr3.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

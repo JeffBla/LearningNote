@@ -1,23 +1,15 @@
-#include "setting_hardaware/setting.h"
 #include <stdlib.h>
-#include "stdio.h"
-#include "string.h"
-// using namespace std;
 
-void main(void) 
-{
+#include "setting_hardaware/setting.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+void main(void) {
     
-    SYSTEM_Initialize() ;
-    
-    unsigned char data;
-    while(1) {
-        data = MyUartRead();
-        UART_Write(data);
+    SYSTEM_Initialize();
+
+    while (1) {
     }
     return;
-}
-
-void __interrupt(high_priority) Hi_ISR(void)
-{
-
 }

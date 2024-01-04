@@ -3,8 +3,8 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>test_32ChannelServoControll</name>
-            <creation-uuid>44388a07-7df6-47ff-baeb-c4f942210a10</creation-uuid>
+            <name>test</name>
+            <creation-uuid>9f797e91-faca-48c6-a6a3-d75cf2f23e76</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
             <cpp-extensions/>
