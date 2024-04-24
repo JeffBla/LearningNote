@@ -1,0 +1,67 @@
+INT_T
+IDENT    	 main
+'('
+STR_T
+IDENT    	 argv
+'['
+']'
+')'
+'{'
+INT_T
+IDENT    	 a
+'['
+INT_LIT  	 5
+']'
+VAL_ASSIGN
+'{'
+INT_LIT  	 10
+','
+INT_LIT  	 20
+','
+INT_LIT  	 30
+','
+INT_LIT  	 40
+','
+INT_LIT  	 50
+'}'
+';'
+COUT
+SHL
+IDENT    	 a
+'['
+INT_LIT  	 0
+']'
+SHL
+STRING_LIT 	 " "
+SHL
+IDENT    	 a
+'['
+INT_LIT  	 1
+']'
+SHL
+STRING_LIT 	 " "
+SHL
+IDENT    	 a
+'['
+INT_LIT  	 2
+']'
+SHL
+STRING_LIT 	 " "
+SHL
+IDENT    	 a
+'['
+INT_LIT  	 3
+']'
+SHL
+STRING_LIT 	 " "
+SHL
+IDENT    	 a
+'['
+INT_LIT  	 4
+']'
+SHL
+IDENT    	 endl
+';'
+'}'
+
+Total line: 4

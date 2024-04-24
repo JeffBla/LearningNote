@@ -1,0 +1,82 @@
+INT_T
+IDENT    	 main
+'('
+STR_T
+IDENT    	 argv
+'['
+']'
+')'
+'{'
+INT_T
+IDENT    	 a
+VAL_ASSIGN
+INT_LIT  	 0
+','
+IDENT    	 b
+VAL_ASSIGN
+INT_LIT  	 0
+','
+IDENT    	 c
+VAL_ASSIGN
+INT_LIT  	 10
+';'
+WHILE
+'('
+IDENT    	 c
+NEQ
+INT_LIT  	 0
+')'
+'{'
+IDENT    	 c
+SUB_ASSIGN
+INT_LIT  	 1
+';'
+'}'
+WHILE
+'('
+'('
+IDENT    	 a
+')'
+EQL
+INT_LIT  	 0
+LOR
+'('
+IDENT    	 b
+')'
+EQL
+INT_LIT  	 0
+LOR
+'('
+IDENT    	 a
+EQL
+INT_LIT  	 0
+LOR
+IDENT    	 b
+EQL
+INT_LIT  	 10
+LOR
+IDENT    	 c
+EQL
+INT_LIT  	 0
+')'
+')'
+'{'
+IDENT    	 a
+SUB_ASSIGN
+INT_LIT  	 1
+';'
+IDENT    	 b
+SUB_ASSIGN
+INT_LIT  	 1
+';'
+IDENT    	 c
+SUB_ASSIGN
+INT_LIT  	 1
+';'
+'}'
+RETURN
+INT_LIT  	 0
+';'
+'}'
+
+Total line: 14

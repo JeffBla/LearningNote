@@ -1,0 +1,9 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: 0) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+/home/share/hw2/input/subtask13-2Darray/testcase01.cpp:2:10: error:  syntax error
+     2 |    int a[ ][3];
+       |         ^
+Total lines: 2

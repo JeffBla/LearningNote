@@ -1,0 +1,17 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 0
+> Insert `a` (addr: 0) to scope level 1
+INT_LIT 0
+> Insert `b` (addr: 1) to scope level 1
+IDENT (name=a, address=0)
+IDENT (name=b, address=1)
+ADD_ASSIGN
+FLOAT_LIT 3.140000
+> Insert `c` (addr: 2) to scope level 1
+IDENT (name=c, address=2)
+Cast to int
+Total lines: 7

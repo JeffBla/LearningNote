@@ -1,0 +1,16 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+STR_LIT "Hello World!"
+cout string
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         11        -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        11        ([Ljava/lang/String;)I
+Total lines: 13

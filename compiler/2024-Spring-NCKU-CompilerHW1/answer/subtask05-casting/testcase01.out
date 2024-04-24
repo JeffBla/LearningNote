@@ -1,0 +1,94 @@
+INT_T
+IDENT    	 main
+'('
+STR_T
+IDENT    	 argv
+'['
+']'
+')'
+'{'
+INT_T
+IDENT    	 x
+VAL_ASSIGN
+INT_LIT  	 3
+';'
+FLOAT_T
+IDENT    	 y
+VAL_ASSIGN
+FLOAT_LIT 	 3.14
+';'
+INT_T
+IDENT    	 z1
+','
+IDENT    	 z2
+';'
+IDENT    	 z1
+VAL_ASSIGN
+IDENT    	 x
+ADD
+'('
+INT_T
+')'
+'('
+IDENT    	 y
+')'
+';'
+IDENT    	 z2
+VAL_ASSIGN
+'('
+FLOAT_T
+')'
+IDENT    	 x
+ADD
+IDENT    	 y
+';'
+COUT
+SHL
+IDENT    	 z1
+SHL
+STRING_LIT 	 " "
+SHL
+IDENT    	 z2
+SHL
+IDENT    	 endl
+';'
+IDENT    	 z1
+VAL_ASSIGN
+IDENT    	 x
+ADD
+'('
+INT_T
+')'
+'('
+FLOAT_LIT 	 6.28
+')'
+';'
+IDENT    	 z2
+VAL_ASSIGN
+'('
+FLOAT_T
+')'
+'('
+INT_LIT  	 6
+')'
+ADD
+IDENT    	 y
+';'
+COUT
+SHL
+IDENT    	 z1
+SHL
+IDENT    	 endl
+';'
+COUT
+SHL
+IDENT    	 z2
+SHL
+IDENT    	 endl
+';'
+RETURN
+INT_LIT  	 0
+';'
+'}'
+
+Total line: 15

@@ -1,0 +1,10 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: 0) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 0
+/home/share/hw2/input/subtask05-casting/testcase02.cpp:3:14: error:  syntax error
+     3 |    int a = 0, b = 0;
+       |             ^
+Total lines: 3

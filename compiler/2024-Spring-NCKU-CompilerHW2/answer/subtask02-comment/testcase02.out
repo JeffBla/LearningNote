@@ -1,0 +1,30 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+STR_LIT "H"
+STR_LIT "e"
+STR_LIT "l"
+STR_LIT "l"
+STR_LIT "o"
+STR_LIT " "
+STR_LIT "w"
+STR_LIT "o"
+STR_LIT "r"
+STR_LIT "l"
+STR_LIT "d"
+STR_LIT "!"
+IDENT (name=endl, address=-1)
+cout string string string string string string string string string string string string string
+INT_LIT 0
+RETURN
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 11

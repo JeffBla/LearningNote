@@ -1,0 +1,11 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: 0) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 10
+> Insert `c` (addr: 2) to scope level 1
+/home/share/hw2/input/subtask08-for/testcase01.cpp:3:5: error:  syntax error
+     3 |    for int i=0;i<c;i++) {
+       |    ^
+Total lines: 3

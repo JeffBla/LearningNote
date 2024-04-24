@@ -1,0 +1,69 @@
+INT_T
+IDENT    	 main
+'('
+STR_T
+IDENT    	 argv
+'['
+']'
+')'
+'{'
+INT_T
+IDENT    	 a
+VAL_ASSIGN
+INT_LIT  	 0
+','
+IDENT    	 b
+VAL_ASSIGN
+INT_LIT  	 0
+';'
+IDENT    	 a
+ADD_ASSIGN
+IDENT    	 b
+';'
+FLOAT_T
+IDENT    	 c
+VAL_ASSIGN
+FLOAT_LIT 	 3.14
+';'
+INT_T
+IDENT    	 d
+VAL_ASSIGN
+'('
+INT_T
+')'
+'('
+IDENT    	 c
+')'
+ADD
+'('
+INT_T
+')'
+FLOAT_LIT 	 2024.3934
+';'
+COUT
+SHL
+IDENT    	 d
+SHL
+IDENT    	 endl
+';'
+COUT
+SHL
+IDENT    	 a
+SHL
+IDENT    	 endl
+';'
+COUT
+SHL
+IDENT    	 b
+SHL
+IDENT    	 endl
+';'
+COUT
+SHL
+IDENT    	 c
+SHL
+IDENT    	 endl
+';'
+'}'
+
+Total line: 12
