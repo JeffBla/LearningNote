@@ -61,12 +61,32 @@ void pushFunInParm(Object* variable);
 Object* findVariable(char* variableName);
 Object* createVariable(ObjectType variableType, char* variableName, int variableFlag);
 ObjectType PrintIdent(char* ident_name);
-bool objectExpression(char op, Object* a, Object* b, Object* out);
+
+bool objectExpression(const char* op, Object* a, Object* b, Object* out);
+bool objectExpAdd(Object* a, Object* b, Object* out);
+bool objectExpSub(Object* a, Object* b, Object* out);
+bool objectExpMul(Object* a, Object* b, Object* out);
+bool objectExpDiv(Object* a, Object* b, Object* out);
+bool objectExpRem(Object* a, Object* b, Object* out);
+bool objectExpShr(Object* a, Object* b, Object* out);
+bool objectExpShl(Object* a, Object* b, Object* out);
+
 bool objectExpBinary(char op, Object* a, Object* b, Object* out);
-bool objectExpBoolean(char op, Object* a, Object* b, Object* out);
+
+bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out);
+bool objectExpBoolNot(Object* a, Object* out);
+bool objectExpBoolAnd(Object* a, Object* b, Object* out);
+bool objectExpBoolOr(Object* a, Object* b, Object* out);
+bool objectExpBoolEq(Object* a, Object* b, Object* out);
+bool objectExpBoolNeq(Object* a, Object* b, Object* out);
+bool objectExpGtr(Object* a, Object* b, Object* out);
+bool objectExpLes(Object* a, Object* b, Object* out);
+bool objectExpGeq(Object* a, Object* b, Object* out);
+bool objectExpLeq(Object* a, Object* b, Object* out);
+
 bool objectExpAssign(char op, Object* dest, Object* val, Object* out);
 bool objectValueAssign(Object* dest, Object* val, Object* out);
-bool objectNotBinaryExpression(Object* dest, Object* out);
+bool objectExpBinaryNot(Object* dest, Object* out);
 bool objectNotExpression(Object* dest, Object* out);
 bool objectNegExpression(Object* dest, Object* out);
 bool objectIncAssign(Object* a, Object* out);
@@ -75,5 +95,21 @@ bool objectCast(ObjectType variableType, Object* dest, Object* out);
 
 void stdoutPrint();
 void ClearCoutParm();
+
+/// Util
+// Object Num2Bool(Object* obj) {
+//     Object out;
+//     if (obj->type == OBJECT_TYPE_INT || obj->type == OBJECT_TYPE_FLOAT) {
+//         out.type = OBJECT_TYPE_BOOL;
+//         out.value = obj->value != 0;
+//     } else if (obj->type == OBJECT_TYPE_BOOL) {
+//         out.type = OBJECT_TYPE_BOOL;
+//         out.value = obj->value;
+//     } else {
+//         out.type = OBJECT_TYPE_UNDEFINED;
+//         out.value = 0;
+//     }
+//     return out;
+// };
 
 #endif

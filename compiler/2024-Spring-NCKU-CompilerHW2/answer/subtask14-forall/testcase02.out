@@ -1,0 +1,88 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 3
+INT_LIT 3
+> Insert `a` (addr: 1) to scope level 1
+FOR
+> Create symbol table (scope level 2)
+INT_LIT 0
+> Insert `i` (addr: 2) to scope level 2
+IDENT (name=i, address=2)
+INT_LIT 3
+LES
+IDENT (name=i, address=2)
+INC_ASSIGN
+FOR
+> Create symbol table (scope level 3)
+INT_LIT 0
+> Insert `j` (addr: 3) to scope level 3
+IDENT (name=j, address=3)
+INT_LIT 3
+LES
+IDENT (name=j, address=3)
+INC_ASSIGN
+IDENT (name=i, address=2)
+IDENT (name=j, address=3)
+IDENT (name=a, address=1)
+IDENT (name=i, address=2)
+IDENT (name=j, address=3)
+ADD
+INT_LIT 998244353
+ADD
+INT_LIT 82781
+REM
+EQL_ASSIGN
+
+> Dump symbol table (scope level: 3)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         j                   int       3         5         -         
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         i                   int       2         3         -         
+FOR
+> Create symbol table (scope level 2)
+INT_LIT 2
+> Insert `i` (addr: 4) to scope level 2
+IDENT (name=i, address=4)
+INT_LIT 0
+GEQ
+IDENT (name=i, address=4)
+DEC_ASSIGN
+FOR
+> Create symbol table (scope level 3)
+INT_LIT 0
+> Insert `j` (addr: 5) to scope level 3
+IDENT (name=j, address=5)
+INT_LIT 3
+LES
+IDENT (name=j, address=5)
+INC_ASSIGN
+IDENT (name=i, address=4)
+IDENT (name=j, address=5)
+IDENT (name=a, address=1)
+IDENT (name=endl, address=-1)
+cout int string
+
+> Dump symbol table (scope level: 3)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         j                   int       5         13        -         
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         i                   int       4         11        -         
+INT_LIT 0
+RETURN
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         a                   int       1         2         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 20

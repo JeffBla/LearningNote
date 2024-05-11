@@ -4,7 +4,7 @@ int mod(int num,int mod) {
 }
 void nothing_function(string s){
     cout << s<< endl;
-    cout << mod(10000000007,99824353) << endl; // very big number!
+    cout << mod(1000000007,99824353) << endl; // very big number!
     cout << mod(-10,2) << endl;
     return;
 }

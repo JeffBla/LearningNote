@@ -1,0 +1,61 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 0
+> Insert `counter` (addr: 1) to scope level 1
+WHILE
+IDENT (name=counter, address=1)
+INT_LIT 100000
+LES
+> Create symbol table (scope level 2)
+IDENT (name=counter, address=1)
+INT_LIT 1
+ADD_ASSIGN
+IDENT (name=counter, address=1)
+INT_LIT 99999
+EQL
+IF
+> Create symbol table (scope level 3)
+BREAK
+
+> Dump symbol table (scope level: 3)
+Index     Name                Type      Addr      Lineno    Func_sig  
+IDENT (name=counter, address=1)
+INT_LIT 91
+REM
+INT_LIT 0
+EQL
+IF
+> Create symbol table (scope level 3)
+STR_LIT "Hello World "
+IDENT (name=counter, address=1)
+INT_LIT 91
+REM
+IDENT (name=endl, address=-1)
+cout string int string
+
+> Dump symbol table (scope level: 3)
+Index     Name                Type      Addr      Lineno    Func_sig  
+INT_LIT 998244353
+IDENT (name=counter, address=1)
+REM
+IDENT (name=endl, address=-1)
+cout int string
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+IDENT (name=counter, address=1)
+IDENT (name=endl, address=-1)
+cout int string
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         counter             int       1         2         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 18

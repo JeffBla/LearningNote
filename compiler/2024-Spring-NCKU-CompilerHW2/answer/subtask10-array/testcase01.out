@@ -1,0 +1,39 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 5
+INT_LIT 10
+INT_LIT 20
+INT_LIT 30
+INT_LIT 40
+INT_LIT 50
+create array: 5
+> Insert `a` (addr: 1) to scope level 1
+INT_LIT 0
+IDENT (name=a, address=1)
+STR_LIT " "
+INT_LIT 1
+IDENT (name=a, address=1)
+STR_LIT " "
+INT_LIT 2
+IDENT (name=a, address=1)
+STR_LIT " "
+INT_LIT 3
+IDENT (name=a, address=1)
+STR_LIT " "
+INT_LIT 4
+IDENT (name=a, address=1)
+IDENT (name=endl, address=-1)
+cout int string int string int string int string int string
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         a                   int       1         2         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 4

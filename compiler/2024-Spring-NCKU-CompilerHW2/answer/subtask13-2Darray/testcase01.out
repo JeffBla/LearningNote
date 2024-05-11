@@ -3,43 +3,66 @@ func: main
 > Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
-INT_LIT 0
+INT_LIT 3
+INT_LIT 3
 > Insert `a` (addr: 1) to scope level 1
 INT_LIT 0
-> Insert `b` (addr: 2) to scope level 1
+INT_LIT 0
 IDENT (name=a, address=1)
-IDENT (name=b, address=2)
-ADD_ASSIGN
-FLOAT_LIT 3.140000
-> Insert `c` (addr: 3) to scope level 1
-IDENT (name=c, address=3)
-Cast to int
-FLOAT_LIT 2024.393433
-Cast to int
-ADD
-> Insert `d` (addr: 4) to scope level 1
-IDENT (name=d, address=4)
-IDENT (name=endl, address=-1)
-cout int string
+INT_LIT 1
+EQL_ASSIGN
+INT_LIT 0
+INT_LIT 1
+IDENT (name=a, address=1)
+INT_LIT 2
+EQL_ASSIGN
+INT_LIT 0
+INT_LIT 2
+IDENT (name=a, address=1)
+INT_LIT 3
+EQL_ASSIGN
+INT_LIT 1
+INT_LIT 1
+IDENT (name=a, address=1)
+INT_LIT 4
+EQL_ASSIGN
+INT_LIT 2
+INT_LIT 2
+IDENT (name=a, address=1)
+INT_LIT 5
+EQL_ASSIGN
+INT_LIT 0
+INT_LIT 0
 IDENT (name=a, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=b, address=2)
+INT_LIT 0
+INT_LIT 1
+IDENT (name=a, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=c, address=3)
+INT_LIT 0
+INT_LIT 2
+IDENT (name=a, address=1)
 IDENT (name=endl, address=-1)
-cout float string
+cout int string
+INT_LIT 1
+INT_LIT 1
+IDENT (name=a, address=1)
+IDENT (name=endl, address=-1)
+cout int string
+INT_LIT 2
+INT_LIT 2
+IDENT (name=a, address=1)
+IDENT (name=endl, address=-1)
+cout int string
 
 > Dump symbol table (scope level: 1)
 Index     Name                Type      Addr      Lineno    Func_sig  
 0         argv                string    0         1         -         
-1         a                   int       1         3         -         
-2         b                   int       2         3         -         
-3         c                   float     3         5         -         
-4         d                   int       4         7         -         
+1         a                   int       1         2         -         
 
 > Dump symbol table (scope level: 0)
 Index     Name                Type      Addr      Lineno    Func_sig  
 0         main                function  -1        1         ([Ljava/lang/String;)I
-Total lines: 12
+Total lines: 13

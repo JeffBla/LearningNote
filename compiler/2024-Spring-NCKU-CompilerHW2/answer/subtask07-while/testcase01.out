@@ -3,70 +3,58 @@ func: main
 > Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
+INT_LIT 0
 > Insert `a` (addr: 1) to scope level 1
+INT_LIT 0
 > Insert `b` (addr: 2) to scope level 1
+INT_LIT 10
 > Insert `c` (addr: 3) to scope level 1
-> Insert `d` (addr: 4) to scope level 1
-> Insert `e` (addr: 5) to scope level 1
+WHILE
+IDENT (name=c, address=3)
+INT_LIT 0
+NEQ
+> Create symbol table (scope level 2)
+IDENT (name=c, address=3)
+INT_LIT 1
+SUB_ASSIGN
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+WHILE
 IDENT (name=a, address=1)
-INT_LIT 243
-BNT
-INT_LIT 15
-BAN
-EQL_ASSIGN
+INT_LIT 0
+EQL
 IDENT (name=b, address=2)
+INT_LIT 0
+EQL
+LOR
+IDENT (name=a, address=1)
+INT_LIT 0
+EQL
+IDENT (name=b, address=2)
+INT_LIT 10
+EQL
+LOR
+IDENT (name=c, address=3)
+INT_LIT 0
+EQL
+LOR
+LOR
+> Create symbol table (scope level 2)
 IDENT (name=a, address=1)
 INT_LIT 1
-SHR
-EQL_ASSIGN
+SUB_ASSIGN
+IDENT (name=b, address=2)
+INT_LIT 1
+SUB_ASSIGN
 IDENT (name=c, address=3)
-IDENT (name=a, address=1)
-EQL_ASSIGN
-IDENT (name=d, address=4)
-IDENT (name=b, address=2)
-INT_LIT 9
-BOR
-EQL_ASSIGN
-IDENT (name=e, address=5)
-IDENT (name=b, address=2)
-EQL_ASSIGN
-IDENT (name=a, address=1)
-IDENT (name=a, address=1)
-ADD_ASSIGN
-IDENT (name=b, address=2)
-IDENT (name=b, address=2)
-ADD_ASSIGN
-IDENT (name=c, address=3)
-IDENT (name=c, address=3)
-DIV_ASSIGN
-IDENT (name=a, address=1)
-STR_LIT " "
-IDENT (name=b, address=2)
-STR_LIT " "
-IDENT (name=c, address=3)
-STR_LIT " "
-IDENT (name=d, address=4)
-STR_LIT " "
-IDENT (name=e, address=5)
-IDENT (name=endl, address=-1)
-cout int string int string int string int string int string
-IDENT (name=e, address=5)
-INT_LIT 100
-INT_LIT 255
-BXO
-EQL_ASSIGN
-IDENT (name=e, address=5)
-INT_LIT 2
-SHL_ASSIGN
-IDENT (name=e, address=5)
-IDENT (name=endl, address=-1)
-cout int string
-IDENT (name=e, address=5)
-INT_LIT 4
-SHR_ASSIGN
-IDENT (name=e, address=5)
-IDENT (name=endl, address=-1)
-cout int string
+INT_LIT 1
+SUB_ASSIGN
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+INT_LIT 0
+RETURN
 
 > Dump symbol table (scope level: 1)
 Index     Name                Type      Addr      Lineno    Func_sig  
@@ -74,10 +62,8 @@ Index     Name                Type      Addr      Lineno    Func_sig
 1         a                   int       1         2         -         
 2         b                   int       2         2         -         
 3         c                   int       3         2         -         
-4         d                   int       4         2         -         
-5         e                   int       5         2         -         
 
 > Dump symbol table (scope level: 0)
 Index     Name                Type      Addr      Lineno    Func_sig  
 0         main                function  -1        1         ([Ljava/lang/String;)I
-Total lines: 19
+Total lines: 14

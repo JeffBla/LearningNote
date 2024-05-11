@@ -35,7 +35,7 @@
 
 /* Nonterminal with return, which need to sepcify type */
 %type <object_val> DefineVariableStmt
-%type <object_val> Expression ExprAssign ExprLor ExprLan ExprBor ExprBxo ExprBan ExprEqlNeq ExprGtrLesGeqLeq ExprShlShr ExprAddSub ExprMulDivRem ExprNotBnt ExprFinal
+%type <object_val> Expression ExprAssign ExprLor ExprLan ExprBor ExprBxo ExprBan ExprEqlNeq ExprGtrLesGeqLeq ExprShlShr ExprAddSub ExprMulDivRem ExprNotBntNeg ExprFinal
 
 %right NOT BNT
 %left MUL DIV REM
@@ -106,8 +106,8 @@ Stmt
 ;
 
 CoutParmListStmt
-    : SHL ExprAddSub { pushFunInParm(&$<object_val>2); } CoutParmListStmt
-    | SHL ExprAddSub { pushFunInParm(&$<object_val>2);}
+    : SHL ExprAddSub { /* printf("ExprAddSub: %d\n", $<object_val>2.value); */ pushFunInParm(&$<object_val>2); } CoutParmListStmt
+    | SHL ExprAddSub { pushFunInParm(&$<object_val>2); }
 ;
 
 /// Expression
@@ -132,73 +132,74 @@ ExprAssign
 ;
 
 ExprLor
-    : ExprLor LOR ExprLan {$$.value  = $1.value  || $3.value ;}
+    : ExprLor LOR ExprLan { if(!objectExpBoolean("||", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprLan { $$ = $1;}
 ;
 
 ExprLan
-    : ExprLan LAN ExprBor {$$.value  = $1.value  && $3.value ;}
+    : ExprLan LAN ExprBor { if(!objectExpBoolean("&&", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprBor { $$ = $1;}
 ;
 
 ExprBor
-    : ExprBor BOR ExprBxo {$$.value  = $1.value  | $3.value ;}
+    : ExprBor BOR ExprBxo {$$.value  = $1.value | $3.value ; printf("BOR\n");}
     | ExprBxo { $$ = $1;}
 ;
 
 ExprBxo
-    : ExprBxo BXO ExprBan {$$.value  = $1.value  ^ $3.value ;}
+    : ExprBxo BXO ExprBan {$$.value  = $1.value ^ $3.value ; printf("BXO\n");}
     | ExprBan { $$ = $1;}
 ;
 
 ExprBan
-    : ExprBan BAN ExprEqlNeq {$$.value  = $1.value  & $3.value ;}
+    : ExprBan BAN ExprEqlNeq {$$.value  = $1.value & $3.value ; printf("BAN\n");}
     | ExprEqlNeq { $$ = $1;}
 ;
 
 ExprEqlNeq
-    : ExprEqlNeq EQL ExprGtrLesGeqLeq {$$.value  = $1.value  == $3.value ;}
-    | ExprEqlNeq NEQ ExprGtrLesGeqLeq {$$.value  = $1.value  != $3.value ;}
+    : ExprEqlNeq EQL ExprGtrLesGeqLeq { if(!objectExpBoolean("==", &$<object_val>1, &$<object_val>3, &$$ )) YYABORT; }
+    | ExprEqlNeq NEQ ExprGtrLesGeqLeq { if(!objectExpBoolean("!=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprGtrLesGeqLeq {$$ = $1;}
 ;
 
 ExprGtrLesGeqLeq
-    : ExprGtrLesGeqLeq GTR ExprShlShr {$$.value  = $1.value  > $3.value ;}
-    | ExprGtrLesGeqLeq LES ExprShlShr {$$.value  = $1.value  < $3.value ;}
-    | ExprGtrLesGeqLeq GEQ ExprShlShr {$$.value  = $1.value  >= $3.value ;}
-    | ExprGtrLesGeqLeq LEQ ExprShlShr {$$.value  = $1.value  <= $3.value ;}
+    : ExprGtrLesGeqLeq GTR ExprShlShr { if(!objectExpBoolean(">", &$<object_val>1, &$<object_val>3, &$$ )) YYABORT; }
+    | ExprGtrLesGeqLeq LES ExprShlShr { if(!objectExpBoolean("<", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprGtrLesGeqLeq GEQ ExprShlShr { if(!objectExpBoolean(">=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprGtrLesGeqLeq LEQ ExprShlShr { if(!objectExpBoolean("<=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprShlShr {$$= $1;}
 ;
 
 ExprShlShr
-    : ExprShlShr SHL ExprAddSub {$$.value  = $1.value  << $3.value ;}
-    | ExprShlShr SHR ExprAddSub {$$.value  = $1.value  >> $3.value ;}
+    : ExprShlShr SHL ExprAddSub { if(!objectExpression("<<", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprShlShr SHR ExprAddSub { if(!objectExpression(">>", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprAddSub {$$ = $1;}
 ;
 
 ExprAddSub
-    : ExprAddSub ADD ExprMulDivRem {$$.value  = $1.value  + $3.value ;}
-    | ExprAddSub SUB ExprMulDivRem  {$$.value  = $1.value  - $3.value ;}
-    | ExprMulDivRem {$$  = $1 ;}
+    : ExprAddSub ADD ExprMulDivRem { if(!objectExpression("+", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprAddSub SUB ExprMulDivRem  { if(!objectExpression("-", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprMulDivRem {$$ = $1 ;}
 
 ExprMulDivRem
-    : ExprMulDivRem MUL ExprNotBnt {$$.value  = $1.value  * $3.value ;}
-    | ExprMulDivRem DIV ExprNotBnt {$$.value  = $1.value  / $3.value ;}
-    | ExprMulDivRem REM ExprNotBnt {$$.value  = $1.value  % $3.value ;}
-    | ExprNotBnt {$$ = $1;}
+    : ExprMulDivRem MUL ExprNotBntNeg { if(!objectExpression("*", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprMulDivRem DIV ExprNotBntNeg { if(!objectExpression("/", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprMulDivRem REM ExprNotBntNeg { if(!objectExpression("%", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprNotBntNeg {$$ = $1;}
 ;
 
 /// Right associative
-ExprNotBnt
-    : NOT ExprNotBnt {$$.value  = !$2.value ;}
-    | BNT ExprNotBnt {$$.value  = ~$2.value ;}
+ExprNotBntNeg
+    : NOT ExprNotBntNeg { if(!objectExpBoolean("!", &$<object_val>2, &$<object_val>2, &$$)) YYABORT; }
+    | BNT ExprNotBntNeg { if(!objectExpBinaryNot(&$<object_val>2, &$$)) YYABORT; }
+    | SUB ExprNotBntNeg { if(!objectNegExpression(&$<object_val>2, &$$)) YYABORT; }
     | ExprFinal {$$= $1;}
 ;
 
 ExprFinal
-    : '(' Expression ')' { $$.value  = $2.value ;}
-    | '[' Expression ']' { $$.value  = $2.value ;}
-    | IDENT {  $$.type = PrintIdent($<s_var>1);} | FLOAT_LIT {$$.value = $1; $$.type = OBJECT_TYPE_FLOAT; printf("FLOAT_LIT %f\n", $<f_var>1);} | INT_LIT {$$.value = $1; $$.type = OBJECT_TYPE_INT; printf("INT_LIT %d\n", $<i_var>1);}  | BOOL_LIT {$$.value = $1; $$.type = OBJECT_TYPE_BOOL; printf("BOOL_LIT %s\n", $<b_var>1 == 0 ? "FALSA" : "TRUE");} | STR_LIT {$$.type = OBJECT_TYPE_STR; printf("STR_LIT \"%s\"\n", $<s_var>1);}
+    : '(' Expression ')' { $$ = $2;}
+    | '[' Expression ']' { $$ = $2;}
+    | IDENT { $$.type = PrintIdent($<s_var>1);} | FLOAT_LIT {$$.value = $1; $$.type = OBJECT_TYPE_FLOAT; printf("FLOAT_LIT %f\n", $<f_var>1);} | INT_LIT {$$.value = $1; $$.type = OBJECT_TYPE_INT; printf("INT_LIT %d\n", $<i_var>1);}  | BOOL_LIT {$$.value = $1; $$.type = OBJECT_TYPE_BOOL; printf("BOOL_LIT %s\n", $<b_var>1 == 0 ? "FALSE" : "TRUE");} | STR_LIT {$$.type = OBJECT_TYPE_STR; printf("STR_LIT \"%s\"\n", $<s_var>1);}
 ;
 
 %%

@@ -30,9 +30,9 @@ INT_LIT 7
 DIV
 SUB
 INT_LIT 4
+NEG
 INT_LIT 3
 REM
-NEG
 GTR
 BOOL_LIT TRUE
 NOT
@@ -42,7 +42,7 @@ NOT
 LAN
 LOR
 IDENT (name=endl, address=-1)
-cout int string
+cout bool string
 FLOAT_LIT 3.000000
 FLOAT_LIT 4.000000
 FLOAT_LIT 5.000000
@@ -77,11 +77,10 @@ NOT
 BOOL_LIT FALSE
 NOT
 NOT
-IDENT (name=endl, address=-1)
-SHL
 LAN
 LOR
-cout float
+IDENT (name=endl, address=-1)
+cout bool string
 INT_LIT 0
 RETURN
 

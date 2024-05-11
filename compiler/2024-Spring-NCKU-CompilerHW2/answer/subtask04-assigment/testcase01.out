@@ -4,123 +4,123 @@ func: main
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
 INT_LIT 0
-> Insert `x` (addr: 0) to scope level 1
-IDENT (name=x, address=0)
+> Insert `x` (addr: 1) to scope level 1
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 10
 EQL_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 2
 ADD_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 3
 SUB_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 4
 MUL_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 5
 DIV_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 6
 REM_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 4092
 BOR_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 INT_LIT 255
 BAN_ASSIGN
-IDENT (name=x, address=0)
+IDENT (name=x, address=1)
 IDENT (name=endl, address=-1)
 cout int string
 FLOAT_LIT 3.140000
-> Insert `yy` (addr: 1) to scope level 1
-IDENT (name=yy, address=1)
+> Insert `yy` (addr: 2) to scope level 1
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 FLOAT_LIT 10.400000
 EQL_ASSIGN
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 FLOAT_LIT 2.000000
 ADD_ASSIGN
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 FLOAT_LIT 3.000000
 SUB_ASSIGN
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 FLOAT_LIT 4.000000
 MUL_ASSIGN
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 FLOAT_LIT 5.000000
 DIV_ASSIGN
-IDENT (name=yy, address=1)
+IDENT (name=yy, address=2)
 IDENT (name=endl, address=-1)
 cout float string
 STR_LIT ""
-> Insert `s` (addr: 2) to scope level 1
-IDENT (name=s, address=2)
+> Insert `s` (addr: 3) to scope level 1
+IDENT (name=s, address=3)
 IDENT (name=endl, address=-1)
 cout string string
-IDENT (name=s, address=2)
+IDENT (name=s, address=3)
 STR_LIT "Hello"
 EQL_ASSIGN
-IDENT (name=s, address=2)
+IDENT (name=s, address=3)
 IDENT (name=endl, address=-1)
 cout string string
 BOOL_LIT FALSE
-> Insert `bbb` (addr: 3) to scope level 1
-IDENT (name=bbb, address=3)
+> Insert `bbb` (addr: 4) to scope level 1
+IDENT (name=bbb, address=4)
 IDENT (name=endl, address=-1)
 cout bool string
-IDENT (name=bbb, address=3)
+IDENT (name=bbb, address=4)
 BOOL_LIT TRUE
 EQL_ASSIGN
-IDENT (name=bbb, address=3)
+IDENT (name=bbb, address=4)
 IDENT (name=endl, address=-1)
 cout bool string
 
 > Dump symbol table (scope level: 1)
 Index     Name                Type      Addr      Lineno    Func_sig  
 0         argv                string    0         1         -         
-1         x                   int       0         2         -         
-2         yy                  float     1         21        -         
-3         s                   string    2         34        -         
-4         bbb                 bool      3         39        -         
+1         x                   int       1         2         -         
+2         yy                  float     2         21        -         
+3         s                   string    3         34        -         
+4         bbb                 bool      4         39        -         
 
 > Dump symbol table (scope level: 0)
 Index     Name                Type      Addr      Lineno    Func_sig  

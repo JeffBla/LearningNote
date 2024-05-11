@@ -143,16 +143,206 @@ void createFunction(ObjectType variableType, char* funcName) {
 void debugPrintInst(char instc, Object* a, Object* b, Object* out) {
 }
 
-bool objectExpression(char op, Object* dest, Object* val, Object* out) {
-    return false;
+bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
+    bool isDone;
+    switch (op[0]) {
+        case '+':
+            isDone = objectExpAdd(dest, val, out);
+            break;
+        case '-':
+            isDone = objectExpSub(dest, val, out);
+            break;
+        case '*':
+            isDone = objectExpMul(dest, val, out);
+            break;
+        case '/':
+            isDone = objectExpDiv(dest, val, out);
+            break;
+        case '%':
+            isDone = objectExpRem(dest, val, out);
+            break;
+        case '>':  // >>
+            isDone = objectExpShr(dest, val, out);
+            break;
+        case '<':  // <<
+            isDone = objectExpShl(dest, val, out);
+            break;
+        default:
+            isDone = false;
+            break;
+    }
+    return isDone;
+}
+
+bool objectExpAdd(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
+        out->type = a->type;
+        out->value = a->value + b->value;
+        isDone = true;
+    }
+    printf("ADD\n");
+    return isDone;
+}
+
+bool objectExpSub(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
+        out->type = a->type;
+        out->value = a->value - b->value;
+        isDone = true;
+    }
+    printf("SUB\n");
+    return isDone;
+}
+
+bool objectExpMul(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
+        out->type = a->type;
+        out->value = a->value * b->value;
+        isDone = true;
+    }
+    printf("MUL\n");
+    return isDone;
+}
+
+bool objectExpDiv(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
+        out->type = a->type;
+        out->value = a->value / b->value;
+        isDone = true;
+    }
+    printf("DIV\n");
+    return isDone;
+}
+
+bool objectExpRem(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
+        out->type = a->type;
+        out->value = a->value % b->value;
+        isDone = true;
+    }
+    printf("REM\n");
+    return isDone;
+}
+
+bool objectExpShr(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
+        out->type = a->type;
+        out->value = a->value >> b->value;
+        isDone = true;
+    }
+    printf("SHR\n");
+    return isDone;
+}
+
+bool objectExpShl(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
+        out->type = a->type;
+        out->value = a->value << b->value;
+        isDone = true;
+    }
+    printf("SHL\n");
+    return isDone;
 }
 
 bool objectExpBinary(char op, Object* a, Object* b, Object* out) {
     return false;
 }
 
-bool objectExpBoolean(char op, Object* a, Object* b, Object* out) {
-    return false;
+bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out) {
+    bool isDone;
+    if (strcmp(op, "!") == 0) {
+        isDone = objectExpBoolNot(a, out);
+    } else if (strcmp(op, "&&") == 0) {
+        isDone = objectExpBoolAnd(a, b, out);
+    } else if (strcmp(op, "||") == 0) {
+        isDone = objectExpBoolOr(a, b, out);
+    } else if (strcmp(op, ">") == 0) {
+        isDone = objectExpGtr(a, b, out);
+    } else if (strcmp(op, "<") == 0) {
+        isDone = objectExpLes(a, b, out);
+    } else if (strcmp(op, "==") == 0) {
+        isDone = objectExpBoolEq(a, b, out);
+    } else if (strcmp(op, "!=") == 0) {
+        isDone = objectExpBoolNeq(a, b, out);
+    } else if (strcmp(op, ">=") == 0) {
+        isDone = objectExpGeq(a, b, out);
+    } else if (strcmp(op, "<=") == 0) {
+        isDone = objectExpLeq(a, b, out);
+    } else {
+        isDone = false;
+    }
+    return isDone;
+}
+
+bool objectExpBoolNot(Object* a, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = !a->value;
+    printf("NOT\n");
+    return true;
+}
+
+bool objectExpBoolAnd(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value && b->value;
+    printf("LAN\n");
+    return true;
+}
+
+bool objectExpBoolOr(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value || b->value;
+    printf("LOR\n");
+    return true;
+}
+
+bool objectExpBoolEq(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value == b->value;
+    printf("EQL\n");
+    return true;
+}
+
+bool objectExpBoolNeq(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value != b->value;
+    printf("NEQ\n");
+    return true;
+}
+
+bool objectExpGtr(Object* a, Object* b, Object* out) {
+    bool isDone = false;
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value > b->value;
+    printf("GTR\n");
+    return true;
+}
+
+bool objectExpLes(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value < b->value;
+    printf("LES\n");
+    return true;
+}
+
+bool objectExpGeq(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value >= b->value;
+    printf("GEQ\n");
+    return true;
+}
+
+bool objectExpLeq(Object* a, Object* b, Object* out) {
+    out->type = OBJECT_TYPE_BOOL;
+    out->value = a->value <= b->value;
+    printf("LEQ\n");
+    return true;
 }
 
 bool objectExpAssign(char op, Object* dest, Object* val, Object* out) {
@@ -163,15 +353,37 @@ bool objectValueAssign(Object* dest, Object* val, Object* out) {
     return false;
 }
 
-bool objectNotBinaryExpression(Object* dest, Object* out) {
+bool objectExpBinaryNot(Object* dest, Object* out) {
+    bool isDone = false;
+    if (dest->type == OBJECT_TYPE_INT || dest->type == OBJECT_TYPE_FLOAT) {
+        out->type = dest->type;
+        out->value = ~dest->value;
+        isDone = true;
+    }
+    printf("BNT\n");
     return false;
 }
 
 bool objectNegExpression(Object* dest, Object* out) {
-    return false;
+    bool isDone = false;
+    if (dest->type == OBJECT_TYPE_INT || dest->type == OBJECT_TYPE_FLOAT) {
+        out->type = dest->type;
+        out->value = -dest->value;
+        isDone = true;
+    }
+    printf("NEG\n");
+    return isDone;
 }
+
 bool objectNotExpression(Object* dest, Object* out) {
-    return false;
+    bool isDone = false;
+    if (dest->type == OBJECT_TYPE_BOOL) {
+        out->type = dest->type;
+        out->value = !dest->value;
+        isDone = true;
+    }
+    printf("NOT\n");
+    return isDone;
 }
 
 bool objectIncAssign(Object* a, Object* out) {
@@ -213,13 +425,14 @@ void pushFunInParm(Object* variable) {
         while (curr->next != NULL) {
             curr = curr->next;
         }
+
         curr->next = new_node;
     }
 }
 
 void stdoutPrint() {
-    FunctionParmTypeNode* curr = cout_parm_list.head;
     printf("cout");
+    FunctionParmTypeNode* curr = cout_parm_list.head;
     while (curr != NULL) {
         printf(" %s", objectTypeName[curr->type]);
         curr = curr->next;

@@ -4,13 +4,58 @@ func: main
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
 INT_LIT 3
-> Insert `x` (addr: 0) to scope level 1
+> Insert `x` (addr: 1) to scope level 1
 FLOAT_LIT 3.140000
-> Insert `y` (addr: 1) to scope level 1
-> Insert `z1` (addr: 2) to scope level 1
-> Insert `z2` (addr: 3) to scope level 1
-IDENT (name=z1, address=2)
-IDENT (name=x, address=0)
-IDENT (name=y, address=1)
+> Insert `y` (addr: 2) to scope level 1
+> Insert `z1` (addr: 3) to scope level 1
+> Insert `z2` (addr: 4) to scope level 1
+IDENT (name=z1, address=3)
+IDENT (name=x, address=1)
+IDENT (name=y, address=2)
 Cast to int
-Total lines: 5
+ADD
+EQL_ASSIGN
+IDENT (name=z2, address=4)
+IDENT (name=x, address=1)
+Cast to float
+IDENT (name=y, address=2)
+ADD
+EQL_ASSIGN
+IDENT (name=z1, address=3)
+STR_LIT " "
+IDENT (name=z2, address=4)
+IDENT (name=endl, address=-1)
+cout int string int string
+IDENT (name=z1, address=3)
+IDENT (name=x, address=1)
+FLOAT_LIT 6.280000
+Cast to int
+ADD
+EQL_ASSIGN
+IDENT (name=z2, address=4)
+INT_LIT 6
+Cast to float
+IDENT (name=y, address=2)
+ADD
+EQL_ASSIGN
+IDENT (name=z1, address=3)
+IDENT (name=endl, address=-1)
+cout int string
+IDENT (name=z2, address=4)
+IDENT (name=endl, address=-1)
+cout int string
+INT_LIT 0
+RETURN
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         x                   int       1         2         -         
+2         y                   float     2         3         -         
+3         z1                  int       3         4         -         
+4         z2                  int       4         4         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 15

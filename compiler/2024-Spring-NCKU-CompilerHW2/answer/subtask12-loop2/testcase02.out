@@ -1,0 +1,47 @@
+> Create symbol table (scope level 0)
+func: main
+> Insert `main` (addr: -1) to scope level 0
+> Create symbol table (scope level 1)
+> Insert `argv` (addr: 0) to scope level 1
+INT_LIT 10
+INT_LIT 10
+INT_LIT 21
+INT_LIT 30
+INT_LIT 41
+INT_LIT 50
+create array: 5
+> Insert `a` (addr: 1) to scope level 1
+FOR
+> Create symbol table (scope level 2)
+> Insert `i` (addr: 2) to scope level 2
+IDENT (name=a, address=1)
+IDENT (name=i, address=2)
+IDENT (name=endl, address=-1)
+cout int string
+IDENT (name=i, address=2)
+INT_LIT 2
+REM
+INT_LIT 0
+EQL
+IF
+> Create symbol table (scope level 3)
+STR_LIT "Even"
+IDENT (name=endl, address=-1)
+cout string string
+
+> Dump symbol table (scope level: 3)
+Index     Name                Type      Addr      Lineno    Func_sig  
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         i                   int       2         4         -         
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         a                   int       1         2         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 11
