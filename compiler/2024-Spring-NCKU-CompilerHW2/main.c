@@ -18,7 +18,7 @@ char* yyInputFileName;
 bool compileError;
 
 int indent = 0;
-int scopeLevel = -1;
+// int scopeLevel = -1;  // scope level equ to the size of the table list
 int funcLineNo = 0;
 int variableAddress = 0;
 ObjectType variableIdentType;
@@ -26,78 +26,42 @@ ObjectType variableIdentType;
 TableList table_list;
 FunctionParmList cout_parm_list;
 
-TableListNode* FindCurrTableNode() {
-    TableListNode* curr = table_list.head;
-    for (int i = 0; i < scopeLevel; i++) {
-        curr = curr->next;
-    }
-    return curr;
-}
-
-void AddObject(Object* object) {
-    // Find the current table node & object list
-    TableListNode* curr_table_node = FindCurrTableNode();
-    ObjectList* object_list = curr_table_node->object_list;
-
-    // Add the object to the object list
-    ObjectNode* new_object_node = (ObjectNode*)malloc(sizeof(ObjectNode));
-    new_object_node->object = object;
-    new_object_node->next = NULL;
-    if (object_list->head == NULL) {
-        object_list->head = new_object_node;
-    } else {
-        ObjectNode* curr_object_node = object_list->head;
-        while (curr_object_node->next != NULL) {
-            curr_object_node = curr_object_node->next;
-        }
-        curr_object_node->next = new_object_node;
-    }
-}
-
-void AddTable() {
-    TableListNode* new_table_node = (TableListNode*)malloc(sizeof(TableListNode));
-    new_table_node->object_list = (ObjectList*)malloc(sizeof(ObjectList));
-    new_table_node->object_list->head = NULL;
-    new_table_node->next = NULL;
-    if (table_list.head == NULL) {
-        table_list.head = new_table_node;
-    } else {
-        TableListNode* curr_table_node = table_list.head;
-        while (curr_table_node->next != NULL) {
-            curr_table_node = curr_table_node->next;
-        }
-        curr_table_node->next = new_table_node;
-    }
-}
-
 void pushScope() {
-    printf("> Create symbol table (scope level %d)\n", ++scopeLevel);
+    // New scope will be indexed by the size of the table list
+    printf("> Create symbol table (scope level %ld)\n", table_list.size);
     variableAddress = 0;
-    AddTable();
+    PushTable(&table_list);
 }
 
 void dumpScope() {
     printf("\n");
-    printf("> Dump symbol table (scope level %d)\n", scopeLevel);
-    TableListNode* curr_table_node = FindCurrTableNode();
-    scopeLevel--;
+    printf("> Dump symbol table (scope level %ld)\n", table_list.size - 1);
+    TableListNode* curr_table_node = FindCurrTableNode(&table_list);
     ObjectNode* curr_object_node = curr_table_node->object_list->head;
     // Index     Name                Type      Addr      Lineno    Func_sig
     printf("%-8s %-20s %-8s %-8s %-8s %-8s\n", "Index", "Name", "Type", "Addr", "Lineno", "Func_sig");
-    while (curr_object_node != NULL) {
-        printf("%-8d %-20s %-8s %-8ld %-8d %-8s\n",
-               curr_object_node->object->symbol->index,
-               curr_object_node->object->symbol->name,
-               objectTypeName[curr_object_node->object->type],
-               curr_object_node->object->symbol->addr,
-               curr_object_node->object->symbol->lineno,
-               "-");
-        curr_object_node = curr_object_node->next;
+    if (curr_object_node != NULL) {
+        // Loop through the object list
+        while (curr_object_node->next != NULL) {
+            curr_object_node = curr_object_node->next;
+        }
+
+        while (curr_object_node != NULL) {
+            printf("%-8d %-20s %-8s %-8ld %-8d %-8s\n",
+                   curr_object_node->object->symbol->index,
+                   curr_object_node->object->symbol->name,
+                   objectTypeName[curr_object_node->object->type],
+                   curr_object_node->object->symbol->addr,
+                   curr_object_node->object->symbol->lineno,
+                   "-");
+            curr_object_node = curr_object_node->prev;
+        }
     }
+    PopTalble(&table_list);
 }
 
 Object* createVariable(ObjectType variableType, char* variableName, int variableFlag) {
-    printf("> Insert `%s` (addr: %d) to scope level %d\n", variableName, variableAddress++, scopeLevel);
+    printf("> Insert `%s` (addr: %d) to scope level %ld\n", variableName, variableAddress++, table_list.size - 1);
     // Populate the object
     Object* new_object = (Object*)malloc(sizeof(Object));
     new_object->type = variableType;
@@ -109,7 +73,7 @@ Object* createVariable(ObjectType variableType, char* variableName, int variable
     new_object->symbol->lineno = yylineno;
     variableAddress++;
     // Add the object to the object list
-    AddObject(new_object);
+    PushObject(new_object, &table_list);
     return new_object;
 }
 
@@ -145,6 +109,7 @@ void debugPrintInst(char instc, Object* a, Object* b, Object* out) {
 
 bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
     bool isDone;
+    ExpTypeCheck(dest, val, out);
     switch (op[0]) {
         case '+':
             isDone = objectExpAdd(dest, val, out);
@@ -174,89 +139,58 @@ bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
     return isDone;
 }
 
+bool objectExpNeg(Object* dest, Object* out) {
+    out->type = dest->type;
+    out->value = -dest->value;
+    printf("NEG\n");
+    return true;
+}
+
 bool objectExpAdd(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
-        out->type = a->type;
-        out->value = a->value + b->value;
-        isDone = true;
-    }
+    out->value = a->value + b->value;
     printf("ADD\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpSub(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
-        out->type = a->type;
-        out->value = a->value - b->value;
-        isDone = true;
-    }
+    out->value = a->value - b->value;
     printf("SUB\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpMul(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
-        out->type = a->type;
-        out->value = a->value * b->value;
-        isDone = true;
-    }
+    out->value = a->value * b->value;
     printf("MUL\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpDiv(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if ((a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) || (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT)) {
-        out->type = a->type;
-        out->value = a->value / b->value;
-        isDone = true;
-    }
+    out->value = a->value / b->value;
     printf("DIV\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpRem(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
-        out->type = a->type;
-        out->value = a->value % b->value;
-        isDone = true;
-    }
+    out->value = a->value % b->value;
     printf("REM\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpShr(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
-        out->type = a->type;
-        out->value = a->value >> b->value;
-        isDone = true;
-    }
+    out->value = a->value >> b->value;
     printf("SHR\n");
-    return isDone;
+    return true;
 }
 
 bool objectExpShl(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_INT) {
-        out->type = a->type;
-        out->value = a->value << b->value;
-        isDone = true;
-    }
+    out->value = a->value << b->value;
     printf("SHL\n");
-    return isDone;
-}
-
-bool objectExpBinary(char op, Object* a, Object* b, Object* out) {
-    return false;
+    return true;
 }
 
 bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out) {
     bool isDone;
+    out->type = OBJECT_TYPE_BOOL;
     if (strcmp(op, "!") == 0) {
         isDone = objectExpBoolNot(a, out);
     } else if (strcmp(op, "&&") == 0) {
@@ -282,35 +216,30 @@ bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out) {
 }
 
 bool objectExpBoolNot(Object* a, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = !a->value;
     printf("NOT\n");
     return true;
 }
 
 bool objectExpBoolAnd(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value && b->value;
     printf("LAN\n");
     return true;
 }
 
 bool objectExpBoolOr(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value || b->value;
     printf("LOR\n");
     return true;
 }
 
 bool objectExpBoolEq(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value == b->value;
     printf("EQL\n");
     return true;
 }
 
 bool objectExpBoolNeq(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value != b->value;
     printf("NEQ\n");
     return true;
@@ -318,72 +247,168 @@ bool objectExpBoolNeq(Object* a, Object* b, Object* out) {
 
 bool objectExpGtr(Object* a, Object* b, Object* out) {
     bool isDone = false;
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value > b->value;
     printf("GTR\n");
     return true;
 }
 
 bool objectExpLes(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value < b->value;
     printf("LES\n");
     return true;
 }
 
 bool objectExpGeq(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value >= b->value;
     printf("GEQ\n");
     return true;
 }
 
 bool objectExpLeq(Object* a, Object* b, Object* out) {
-    out->type = OBJECT_TYPE_BOOL;
     out->value = a->value <= b->value;
     printf("LEQ\n");
     return true;
 }
 
-bool objectExpAssign(char op, Object* dest, Object* val, Object* out) {
-    return false;
+bool objectExpBinary(const char* op, Object* a, Object* b, Object* out) {
+    bool isDone;
+    ExpTypeCheck(a, b, out);
+    switch (op[0]) {
+        case '~':
+            isDone = objectExpBinNot(a, out);
+            break;
+        case '|':
+            isDone = objectExpBinOr(a, b, out);
+            break;
+        case '^':
+            isDone = objectExpBinXor(a, b, out);
+            break;
+        case '&':
+            isDone = objectExpBinAnd(a, b, out);
+            break;
+        default:
+            isDone = false;
+            break;
+    }
+    return isDone;
+}
+
+bool objectExpBinNot(Object* dest, Object* out) {
+    out->value = ~dest->value;
+    printf("BNT\n");
+    return true;
+}
+
+bool objectExpBinOr(Object* a, Object* b, Object* out) {
+    out->value = a->value | b->value;
+    printf("BOR\n");
+    return true;
+}
+
+bool objectExpBinXor(Object* a, Object* b, Object* out) {
+    out->value = a->value ^ b->value;
+    printf("BXO\n");
+    return true;
+}
+
+bool objectExpBinAnd(Object* a, Object* b, Object* out) {
+    out->value = a->value & b->value;
+    printf("BAN\n");
+    return true;
+}
+
+bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
+    bool isDone;
+    ExpAssignTypeCheck(dest, val, out);
+    if (strcmp(op, "=") == 0) {
+        isDone = objectValueAssign(dest, val, out);
+    } else if (strcmp(op, "+=") == 0) {
+        isDone = objectExpAddAssign(dest, val, out);
+    } else if (strcmp(op, "-=") == 0) {
+        isDone = objectExpSubAssign(dest, val, out);
+    } else if (strcmp(op, "*=") == 0) {
+        isDone = objectExpMulAssign(dest, val, out);
+    } else if (strcmp(op, "/=") == 0) {
+        isDone = objectExpDivAssign(dest, val, out);
+    } else if (strcmp(op, "%=") == 0) {
+        isDone = objectExpRemAssign(dest, val, out);
+    } else if (strcmp(op, "&=") == 0) {
+        isDone = objectExpBanAssign(dest, val, out);
+    } else if (strcmp(op, "|=") == 0) {
+        isDone = objectExpBorAssign(dest, val, out);
+    } else if (strcmp(op, "^=") == 0) {
+        isDone = objectExpBxoAssign(dest, val, out);
+    } else if (strcmp(op, ">>=") == 0) {
+        isDone = objectExpShrAssign(dest, val, out);
+    } else if (strcmp(op, "<<=") == 0) {
+        isDone = objectExpShlAssign(dest, val, out);
+    } else {
+        isDone = false;
+    }
+
+    // if (isDone) {
+    //     printf("%s_1\n", dest->symbol->name);
+    //     // Object* dest_ident = findVariable(dest->symbol->name);
+    //     // if (dest_ident != NULL) {
+    //     //     dest_ident->value = out->value;
+    //     // }
+    // }
+    return isDone;
 }
 
 bool objectValueAssign(Object* dest, Object* val, Object* out) {
-    return false;
+    out->value = dest->value = val->value;
+    return true;
 }
 
-bool objectExpBinaryNot(Object* dest, Object* out) {
-    bool isDone = false;
-    if (dest->type == OBJECT_TYPE_INT || dest->type == OBJECT_TYPE_FLOAT) {
-        out->type = dest->type;
-        out->value = ~dest->value;
-        isDone = true;
-    }
-    printf("BNT\n");
-    return false;
+bool objectExpAddAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value += val->value;
+    return true;
 }
 
-bool objectNegExpression(Object* dest, Object* out) {
-    bool isDone = false;
-    if (dest->type == OBJECT_TYPE_INT || dest->type == OBJECT_TYPE_FLOAT) {
-        out->type = dest->type;
-        out->value = -dest->value;
-        isDone = true;
-    }
-    printf("NEG\n");
-    return isDone;
+bool objectExpSubAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value -= val->value;
+    return true;
 }
 
-bool objectNotExpression(Object* dest, Object* out) {
-    bool isDone = false;
-    if (dest->type == OBJECT_TYPE_BOOL) {
-        out->type = dest->type;
-        out->value = !dest->value;
-        isDone = true;
-    }
-    printf("NOT\n");
-    return isDone;
+bool objectExpMulAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value *= val->value;
+    return true;
+}
+
+bool objectExpDivAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value /= val->value;
+    return true;
+}
+
+bool objectExpRemAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value %= val->value;
+    return true;
+}
+
+bool objectExpBanAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value &= val->value;
+    return true;
+}
+
+bool objectExpBorAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value |= val->value;
+    return true;
+}
+
+bool objectExpBxoAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value ^= val->value;
+    return true;
+}
+
+bool objectExpShrAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value >>= val->value;
+    return true;
+}
+
+bool objectExpShlAssign(Object* dest, Object* val, Object* out) {
+    out->value = dest->value <<= val->value;
+    return true;
 }
 
 bool objectIncAssign(Object* a, Object* out) {
@@ -403,7 +428,7 @@ Object* findVariable(char* variableName) {
         return NULL;
     }
 
-    TableListNode* curr_table_node = FindCurrTableNode();
+    TableListNode* curr_table_node = FindCurrTableNode(&table_list);
     ObjectNode* obj_node = curr_table_node->object_list->head;
     while (obj_node != NULL) {
         if (strcmp(obj_node->object->symbol->name, variableName) == 0) {
@@ -452,6 +477,30 @@ void ClearCoutParm() {
     cout_parm_list.head = NULL;
 }
 
+/***                        Utils                   ***/
+
+void ExpTypeCheck(Object* a, Object* b, Object* out) {
+    if (a->type == b->type) {
+        out->type = a->type;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->type = OBJECT_TYPE_FLOAT;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->type = OBJECT_TYPE_FLOAT;
+    } else if (a->type == OBJECT_TYPE_BOOL && b->type == OBJECT_TYPE_INT) {
+        out->type = OBJECT_TYPE_INT;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_BOOL) {
+        out->type = OBJECT_TYPE_INT;
+    } else if (a->type == OBJECT_TYPE_BOOL && b->type == OBJECT_TYPE_FLOAT) {
+        out->type = OBJECT_TYPE_FLOAT;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_BOOL) {
+        out->type = OBJECT_TYPE_FLOAT;
+    }
+}
+
+void ExpAssignTypeCheck(Object* dest, Object* val, Object* out) {
+    out->type = dest->type;
+}
+
 int main(int argc, char* argv[]) {
     if (argc == 2) {
         yyin = fopen(yyInputFileName = argv[1], "r");
@@ -464,6 +513,7 @@ int main(int argc, char* argv[]) {
     }
 
     table_list.head = NULL;
+    table_list.size = 0;
     cout_parm_list.head = NULL;
 
     // Start parsing

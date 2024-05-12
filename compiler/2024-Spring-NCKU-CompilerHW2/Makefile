@@ -1,4 +1,5 @@
 CFLAGS := -Wall -O0 -ggdb
+INCLUDES = -I include/ -I src/
 YFLAG := -d -v 
 MAIN_SRC := ./main.c
 LEX_SRC := ./compiler.l
@@ -9,6 +10,10 @@ BUILD_OUT := out
 COMPILER := compiler
 EXEC := Main
 INPUT_CPP := test.cpp
+
+SRC_DIR := src
+SRC := $(wildcard ${SRC_DIR}/*.c)
+OBJ := $(patsubst %.c,${BUILD}/%.o,$(notdir ${SRC}))
 
 COMPILER_OUT := ${BUILD}/${BUILD_OUT}/${COMPILER}
 LEX_OUT := ${BUILD}/lex.yy.c
@@ -34,13 +39,17 @@ y.tab.c:
 	$(info ---------- Compile Yacc ----------)
 	yacc ${YFLAG} -o ${YAC_OUT} ${YAC_SRC}
 
+$(BUILD)/%.o: $(SRC_DIR)/%.c
+	$(info ---------- Compile $< ----------)
+	gcc ${INCLUDES} -g -c $< -o $@
+
 main.c:
 	$(info ---------- Compile ${MAIN_SRC} ----------)
-	gcc -g -c ${MAIN_SRC} -o ${MAIN_OUT}
+	gcc ${INCLUDES} -g -c ${MAIN_SRC} -o ${MAIN_OUT}
 
-${COMPILER}: create_build_folder lex.yy.c y.tab.c main.c
+${COMPILER}: create_build_folder lex.yy.c y.tab.c main.c ${OBJ}
 	$(info ---------- Create compiler ----------)
-	gcc ${CFLAGS} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${MAIN_OUT}
+	gcc ${CFLAGS} ${INCLUDES} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${MAIN_OUT} ${OBJ}
 
 run:
 	@./${COMPILER_OUT}

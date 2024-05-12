@@ -106,8 +106,8 @@ Stmt
 ;
 
 CoutParmListStmt
-    : SHL ExprAddSub { /* printf("ExprAddSub: %d\n", $<object_val>2.value); */ pushFunInParm(&$<object_val>2); } CoutParmListStmt
-    | SHL ExprAddSub { pushFunInParm(&$<object_val>2); }
+    : SHL ExprAddSub {  printf("ExprAddSub: %d\n", $<object_val>2.value);  pushFunInParm(&$<object_val>2); } CoutParmListStmt
+    | SHL ExprAddSub {  printf("ExprAddSub: %d\n", $<object_val>2.value);  pushFunInParm(&$<object_val>2); }
 ;
 
 /// Expression
@@ -117,17 +117,17 @@ Expression
 
 /// Right associative
 ExprAssign
-    : ExprLor EQL_ASSIGN ExprAssign {printf("%s", "EQL_ASSIGN\n"); $$.value = $1.value = $3.value;}
-    | ExprLor ADD_ASSIGN ExprAssign {printf("%s", "ADD_ASSIGN\n"); $$.value  = $1.value += $3.value;}
-    | ExprLor SUB_ASSIGN ExprAssign {printf("%s", "SUB_ASSIGN\n"); $$.value  = $1.value -= $3.value;}
-    | ExprLor MUL_ASSIGN ExprAssign {printf("%s", "MUL_ASSIGN\n"); $$.value  = $1.value *= $3.value;}
-    | ExprLor DIV_ASSIGN ExprAssign {printf("%s", "DIV_ASSIGN\n"); $$.value  = $1.value  /= $3.value ;}
-    | ExprLor REM_ASSIGN ExprAssign {printf("%s", "REM_ASSIGN\n"); $$.value  = $1.value  %= $3.value ;}
-    | ExprLor BAN_ASSIGN ExprAssign {printf("%s", "BAN_ASSIGN\n"); $$.value  = $1.value  &= $3.value ;}
-    | ExprLor BOR_ASSIGN ExprAssign {printf("%s", "BOR_ASSIGN\n"); $$.value  = $1.value  |= $3.value ;}
-    | ExprLor BXO_ASSIGN ExprAssign {printf("%s", "BXO_ASSIGN\n"); $$.value  = $1.value  ^= $3.value ;}
-    | ExprLor SHR_ASSIGN ExprAssign {printf("%s", "SHR_ASSIGN\n"); $$.value  = $1.value  >>= $3.value ;}
-    | ExprLor SHL_ASSIGN ExprAssign {printf("%s", "SHL_ASSIGN\n"); $$.value  = $1.value  <<= $3.value ;}
+    : ExprLor EQL_ASSIGN ExprAssign { if(!objectExpAssign("=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor ADD_ASSIGN ExprAssign { if(!objectExpAssign("+=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor SUB_ASSIGN ExprAssign { if(!objectExpAssign("-=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT;}
+    | ExprLor MUL_ASSIGN ExprAssign { if(!objectExpAssign("*=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor DIV_ASSIGN ExprAssign { if(!objectExpAssign("/=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor REM_ASSIGN ExprAssign { if(!objectExpAssign("%=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor BAN_ASSIGN ExprAssign { if(!objectExpAssign("&=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor BOR_ASSIGN ExprAssign { if(!objectExpAssign("|=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor BXO_ASSIGN ExprAssign { if(!objectExpAssign("^=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor SHR_ASSIGN ExprAssign { if(!objectExpAssign(">>=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
+    | ExprLor SHL_ASSIGN ExprAssign { if(!objectExpAssign("<<=", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprLor { $$ = $1;}
 ;
 
@@ -142,17 +142,17 @@ ExprLan
 ;
 
 ExprBor
-    : ExprBor BOR ExprBxo {$$.value  = $1.value | $3.value ; printf("BOR\n");}
+    : ExprBor BOR ExprBxo { if(!objectExpBoolean("|", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprBxo { $$ = $1;}
 ;
 
 ExprBxo
-    : ExprBxo BXO ExprBan {$$.value  = $1.value ^ $3.value ; printf("BXO\n");}
+    : ExprBxo BXO ExprBan { if(!objectExpBoolean("^", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprBan { $$ = $1;}
 ;
 
 ExprBan
-    : ExprBan BAN ExprEqlNeq {$$.value  = $1.value & $3.value ; printf("BAN\n");}
+    : ExprBan BAN ExprEqlNeq { if(!objectExpBoolean("&", &$<object_val>1, &$<object_val>3, &$$)) YYABORT; }
     | ExprEqlNeq { $$ = $1;}
 ;
 
@@ -191,8 +191,8 @@ ExprMulDivRem
 /// Right associative
 ExprNotBntNeg
     : NOT ExprNotBntNeg { if(!objectExpBoolean("!", &$<object_val>2, &$<object_val>2, &$$)) YYABORT; }
-    | BNT ExprNotBntNeg { if(!objectExpBinaryNot(&$<object_val>2, &$$)) YYABORT; }
-    | SUB ExprNotBntNeg { if(!objectNegExpression(&$<object_val>2, &$$)) YYABORT; }
+    | BNT ExprNotBntNeg { if(!objectExpBinary("~", &$<object_val>2, &$<object_val>2, &$$)) YYABORT; }
+    | SUB ExprNotBntNeg { if(!objectExpNeg(&$<object_val>2, &$$)) YYABORT; }
     | ExprFinal {$$= $1;}
 ;
 
