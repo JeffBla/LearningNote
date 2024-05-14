@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "TableList.h"
+#include "Util.h"
 #include "compiler_common.h"
 
 extern FILE* yyin;
@@ -17,14 +18,10 @@ int yylex_destroy();
 #define VAR_FLAG_ARRAY 0b00000001
 #define VAR_FLAG_POINTER 0b00000010
 
-/**
- * Talbe List keep each scope's object list
- * Object List keep each object in the scope
- */
-
 typedef struct FunctionParmTypeNode {
     struct FunctionParmTypeNode* next;
     ObjectType type;
+    uint64_t value;
 } FunctionParmTypeNode;
 
 typedef struct FunctionParmList {
@@ -84,29 +81,10 @@ bool objectExpShlAssign(Object* dest, Object* val, Object* out);
 
 bool objectIncAssign(Object* a, Object* out);
 bool objectDecAssign(Object* a, Object* out);
+
 bool objectCast(ObjectType variableType, Object* dest, Object* out);
 
 void stdoutPrint();
 void ClearCoutParm();
-
-/// Util
-// Object Num2Bool(Object* obj) {
-//     Object out;
-//     if (obj->type == OBJECT_TYPE_INT || obj->type == OBJECT_TYPE_FLOAT) {
-//         out.type = OBJECT_TYPE_BOOL;
-//         out.value = obj->value != 0;
-//     } else if (obj->type == OBJECT_TYPE_BOOL) {
-//         out.type = OBJECT_TYPE_BOOL;
-//         out.value = obj->value;
-//     } else {
-//         out.type = OBJECT_TYPE_UNDEFINED;
-//         out.value = 0;
-//     }
-//     return out;
-// };
-
-void ExpTypeCheck(Object* a, Object* b, Object* out);
-
-void ExpAssignTypeCheck(Object* dest, Object* val, Object* out);
 
 #endif

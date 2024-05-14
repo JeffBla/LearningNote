@@ -27,6 +27,9 @@ build: ${COMPILER}
 
 .PHONY: main.c
 
+debug: DEBUG=-DDEBUG
+debug: build
+
 create_build_folder:
 	mkdir -p ${BUILD}
 	mkdir -p ${BUILD}/${BUILD_OUT}
@@ -41,15 +44,15 @@ y.tab.c:
 
 $(BUILD)/%.o: $(SRC_DIR)/%.c
 	$(info ---------- Compile $< ----------)
-	gcc ${INCLUDES} -g -c $< -o $@
+	gcc ${INCLUDES} ${DEBUG} -g -c $< -o $@
 
 main.c:
 	$(info ---------- Compile ${MAIN_SRC} ----------)
-	gcc ${INCLUDES} -g -c ${MAIN_SRC} -o ${MAIN_OUT}
+	gcc ${INCLUDES} ${DEBUG} -g -c ${MAIN_SRC} -o ${MAIN_OUT}
 
 ${COMPILER}: create_build_folder lex.yy.c y.tab.c main.c ${OBJ}
 	$(info ---------- Create compiler ----------)
-	gcc ${CFLAGS} ${INCLUDES} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${MAIN_OUT} ${OBJ}
+	gcc ${CFLAGS} ${DEBUG} ${INCLUDES} -o ${COMPILER_OUT} -iquote ./ -iquote ../ ${LEX_OUT} ${YAC_OUT} ${MAIN_OUT} ${OBJ}
 
 run:
 	@./${COMPILER_OUT}

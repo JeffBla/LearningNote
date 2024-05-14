@@ -147,25 +147,41 @@ bool objectExpNeg(Object* dest, Object* out) {
 }
 
 bool objectExpAdd(Object* a, Object* b, Object* out) {
-    out->value = a->value + b->value;
+    if (out->type == OBJECT_TYPE_FLOAT) {
+        out->value = Float2Uint64(Uint64ToFloat(a->value) + Uint64ToFloat(b->value));
+    } else {
+        out->value = a->value + b->value;
+    }
     printf("ADD\n");
     return true;
 }
 
 bool objectExpSub(Object* a, Object* b, Object* out) {
-    out->value = a->value - b->value;
+    if (out->type == OBJECT_TYPE_FLOAT) {
+        out->value = Float2Uint64(Uint64ToFloat(a->value) - Uint64ToFloat(b->value));
+    } else {
+        out->value = a->value - b->value;
+    }
     printf("SUB\n");
     return true;
 }
 
 bool objectExpMul(Object* a, Object* b, Object* out) {
-    out->value = a->value * b->value;
+    if (out->type == OBJECT_TYPE_FLOAT) {
+        out->value = Float2Uint64(Uint64ToFloat(a->value) * Uint64ToFloat(b->value));
+    } else {
+        out->value = a->value * b->value;
+    }
     printf("MUL\n");
     return true;
 }
 
 bool objectExpDiv(Object* a, Object* b, Object* out) {
-    out->value = a->value / b->value;
+    if (out->type == OBJECT_TYPE_FLOAT) {
+        out->value = Float2Uint64(Uint64ToFloat(a->value) / Uint64ToFloat(b->value));
+    } else {
+        out->value = a->value / b->value;
+    }
     printf("DIV\n");
     return true;
 }
@@ -346,68 +362,83 @@ bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
         isDone = false;
     }
 
-    // if (isDone) {
-    //     printf("%s_1\n", dest->symbol->name);
-    //     // Object* dest_ident = findVariable(dest->symbol->name);
-    //     // if (dest_ident != NULL) {
-    //     //     dest_ident->value = out->value;
-    //     // }
-    // }
+    if (isDone) {
+        Object* target = findVariable(dest->symbol->name);
+        if (target != NULL) {
+            target->value = out->value;
+        }
+    }
     return isDone;
 }
 
 bool objectValueAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value = val->value;
+    objectCast(dest->type, val, dest);
+    out->value = dest->value;
+    printf("EQL_ASSIGN\n");
     return true;
 }
 
 bool objectExpAddAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value += val->value;
+    Object val_casted = *val;
+    objectCast(dest->type, val, &val_casted);
+    out->value = dest->value += val_casted.value;
+    printf("ADD_ASSIGN\n");
     return true;
 }
 
 bool objectExpSubAssign(Object* dest, Object* val, Object* out) {
+    Object val_casted = *val;
+    objectCast(dest->type, val, &val_casted);
     out->value = dest->value -= val->value;
+    printf("SUB_ASSIGN\n");
     return true;
 }
 
 bool objectExpMulAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value *= val->value;
+    printf("MUL_ASSIGN\n");
     return true;
 }
 
 bool objectExpDivAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value /= val->value;
+    printf("DIV_ASSIGN\n");
     return true;
 }
 
 bool objectExpRemAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value %= val->value;
+    printf("REM_ASSIGN\n");
     return true;
 }
 
 bool objectExpBanAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value &= val->value;
+    printf("BAN_ASSIGN\n");
     return true;
 }
 
 bool objectExpBorAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value |= val->value;
+    printf("BOR_ASSIGN\n");
     return true;
 }
 
 bool objectExpBxoAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value ^= val->value;
+    printf("BXO_ASSIGN\n");
     return true;
 }
 
 bool objectExpShrAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value >>= val->value;
+    printf("SHR_ASSIGN\n");
     return true;
 }
 
 bool objectExpShlAssign(Object* dest, Object* val, Object* out) {
     out->value = dest->value <<= val->value;
+    printf("SHL_ASSIGN\n");
     return true;
 }
 
@@ -420,7 +451,48 @@ bool objectDecAssign(Object* a, Object* out) {
 }
 
 bool objectCast(ObjectType variableType, Object* dest, Object* out) {
-    return false;
+    bool isDone = false;
+    out->type = variableType;
+    if (dest->type == variableType) {
+        out->value = dest->value;
+        isDone = true;
+    } else {
+        if (dest->type == OBJECT_TYPE_INT && variableType == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64((float)dest->value);
+            isDone = true;
+        } else if (dest->type == OBJECT_TYPE_INT && variableType == OBJECT_TYPE_BOOL) {
+            out->value = dest->value != 0;
+            isDone = true;
+        } else if (dest->type == OBJECT_TYPE_FLOAT && variableType == OBJECT_TYPE_INT) {
+            out->value = (int)Uint64ToFloat(dest->value);
+            isDone = true;
+        } else if (dest->type == OBJECT_TYPE_FLOAT && variableType == OBJECT_TYPE_BOOL) {
+            out->value = Uint64ToFloat(dest->value) != 0.0;
+            isDone = true;
+        } else if (dest->type == OBJECT_TYPE_BOOL && variableType == OBJECT_TYPE_INT) {
+            out->value = dest->value;
+            isDone = true;
+        } else if (dest->type == OBJECT_TYPE_BOOL && variableType == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64((float)dest->value);
+            isDone = true;
+        }
+    }
+
+#ifdef DEBUG
+    if (isDone) {
+        if (variableType == OBJECT_TYPE_FLOAT) {
+            printf("CAST to %s. Value: %f\n", objectTypeName[variableType], Uint64ToFloat(out->value));
+        } else if (variableType == OBJECT_TYPE_INT | variableType == OBJECT_TYPE_BOOL) {
+            printf("CAST to %s. Value: %ld\n", objectTypeName[variableType], out->value);
+        }
+    }
+#else
+    if (isDone) {
+        printf("Cast to %s\n", objectTypeName[variableType]);
+    }
+#endif
+
+    return isDone;
 }
 
 Object* findVariable(char* variableName) {
@@ -436,12 +508,13 @@ Object* findVariable(char* variableName) {
         }
         obj_node = obj_node->next;
     }
-    return obj_node->object;
+    return NULL;
 }
 
 void pushFunInParm(Object* variable) {
     FunctionParmTypeNode* new_node = (FunctionParmTypeNode*)malloc(sizeof(FunctionParmTypeNode));
     new_node->type = variable->type;
+    new_node->value = variable->value;
     new_node->next = NULL;
     if (cout_parm_list.head == NULL) {
         cout_parm_list.head = new_node;
@@ -460,6 +533,16 @@ void stdoutPrint() {
     FunctionParmTypeNode* curr = cout_parm_list.head;
     while (curr != NULL) {
         printf(" %s", objectTypeName[curr->type]);
+#ifdef DEBUG
+        if (curr->type == OBJECT_TYPE_FLOAT)
+            printf(" -> %f", Uint64ToFloat(curr->value));
+        else if (curr->type == OBJECT_TYPE_INT)
+            printf(" -> %ld", curr->value);
+        else if (curr->type == OBJECT_TYPE_BOOL)
+            printf(" -> %s", curr->value ? "true" : "false");
+        else if (curr->type == OBJECT_TYPE_STR)
+            printf(" -> \"%s\"", Uint64ToString(curr->value));
+#endif
         curr = curr->next;
     }
     printf("\n");
@@ -475,30 +558,6 @@ void ClearCoutParm() {
         free(temp);
     }
     cout_parm_list.head = NULL;
-}
-
-/***                        Utils                   ***/
-
-void ExpTypeCheck(Object* a, Object* b, Object* out) {
-    if (a->type == b->type) {
-        out->type = a->type;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->type = OBJECT_TYPE_FLOAT;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->type = OBJECT_TYPE_FLOAT;
-    } else if (a->type == OBJECT_TYPE_BOOL && b->type == OBJECT_TYPE_INT) {
-        out->type = OBJECT_TYPE_INT;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_BOOL) {
-        out->type = OBJECT_TYPE_INT;
-    } else if (a->type == OBJECT_TYPE_BOOL && b->type == OBJECT_TYPE_FLOAT) {
-        out->type = OBJECT_TYPE_FLOAT;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_BOOL) {
-        out->type = OBJECT_TYPE_FLOAT;
-    }
-}
-
-void ExpAssignTypeCheck(Object* dest, Object* val, Object* out) {
-    out->type = dest->type;
 }
 
 int main(int argc, char* argv[]) {
