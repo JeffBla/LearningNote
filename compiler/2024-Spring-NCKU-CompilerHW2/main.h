@@ -68,16 +68,16 @@ bool objectExpBinAnd(Object* a, Object* b, Object* out);
 
 bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out);
 bool objectValueAssign(Object* dest, Object* val, Object* out);
-bool objectExpAddAssign(Object* dest, Object* val, Object* out);
-bool objectExpSubAssign(Object* dest, Object* val, Object* out);
-bool objectExpMulAssign(Object* dest, Object* val, Object* out);
-bool objectExpDivAssign(Object* dest, Object* val, Object* out);
-bool objectExpRemAssign(Object* dest, Object* val, Object* out);
-bool objectExpBanAssign(Object* dest, Object* val, Object* out);
-bool objectExpBorAssign(Object* dest, Object* val, Object* out);
-bool objectExpBxoAssign(Object* dest, Object* val, Object* out);
-bool objectExpShrAssign(Object* dest, Object* val, Object* out);
-bool objectExpShlAssign(Object* dest, Object* val, Object* out);
+bool objectExpAddAssign(Object* a, Object* b, Object* out);
+bool objectExpSubAssign(Object* a, Object* b, Object* out);
+bool objectExpMulAssign(Object* a, Object* b, Object* out);
+bool objectExpDivAssign(Object* a, Object* b, Object* out);
+bool objectExpRemAssign(Object* a, Object* b, Object* out);
+bool objectExpBanAssign(Object* a, Object* b, Object* out);
+bool objectExpBorAssign(Object* a, Object* b, Object* out);
+bool objectExpBxoAssign(Object* a, Object* b, Object* out);
+bool objectExpShrAssign(Object* a, Object* b, Object* out);
+bool objectExpShlAssign(Object* a, Object* b, Object* out);
 
 bool objectIncAssign(Object* a, Object* out);
 bool objectDecAssign(Object* a, Object* out);

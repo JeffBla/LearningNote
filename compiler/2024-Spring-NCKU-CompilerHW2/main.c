@@ -141,49 +141,137 @@ bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
 
 bool objectExpNeg(Object* dest, Object* out) {
     out->type = dest->type;
-    out->value = -dest->value;
+    if (dest->type == OBJECT_TYPE_FLOAT) {
+        out->value = Float2Uint64(-Uint64ToFloat(dest->value));
+    } else {
+        out->value = -dest->value;
+    }
     printf("NEG\n");
     return true;
 }
 
 bool objectExpAdd(Object* a, Object* b, Object* out) {
-    if (out->type == OBJECT_TYPE_FLOAT) {
-        out->value = Float2Uint64(Uint64ToFloat(a->value) + Uint64ToFloat(b->value));
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) + b->value);
+        } else {
+            out->value = Uint64ToFloat(a->value) + b->value;
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(a->value + Uint64ToFloat(b->value));
+        } else {
+            out->value = a->value + Uint64ToFloat(b->value);
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) + Uint64ToFloat(b->value));
+        } else {
+            out->value = Uint64ToFloat(a->value) + Uint64ToFloat(b->value);
+        }
+        isDone = true;
     } else {
         out->value = a->value + b->value;
+        isDone = true;
     }
     printf("ADD\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpSub(Object* a, Object* b, Object* out) {
-    if (out->type == OBJECT_TYPE_FLOAT) {
-        out->value = Float2Uint64(Uint64ToFloat(a->value) - Uint64ToFloat(b->value));
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) - b->value);
+        } else {
+            out->value = Uint64ToFloat(a->value) - b->value;
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(a->value - Uint64ToFloat(b->value));
+        } else {
+            out->value = a->value - Uint64ToFloat(b->value);
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) - Uint64ToFloat(b->value));
+        } else {
+            out->value = Uint64ToFloat(a->value) - Uint64ToFloat(b->value);
+        }
+        isDone = true;
     } else {
         out->value = a->value - b->value;
+        isDone = true;
     }
     printf("SUB\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpMul(Object* a, Object* b, Object* out) {
-    if (out->type == OBJECT_TYPE_FLOAT) {
-        out->value = Float2Uint64(Uint64ToFloat(a->value) * Uint64ToFloat(b->value));
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) * b->value);
+        } else {
+            out->value = Uint64ToFloat(a->value) * b->value;
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(a->value * Uint64ToFloat(b->value));
+        } else {
+            out->value = a->value * Uint64ToFloat(b->value);
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) * Uint64ToFloat(b->value));
+        } else {
+            out->value = Uint64ToFloat(a->value) * Uint64ToFloat(b->value);
+        }
+        isDone = true;
     } else {
         out->value = a->value * b->value;
+        isDone = true;
     }
     printf("MUL\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpDiv(Object* a, Object* b, Object* out) {
-    if (out->type == OBJECT_TYPE_FLOAT) {
-        out->value = Float2Uint64(Uint64ToFloat(a->value) / Uint64ToFloat(b->value));
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) / b->value);
+        } else {
+            out->value = Uint64ToFloat(a->value) / b->value;
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(a->value / Uint64ToFloat(b->value));
+        } else {
+            out->value = a->value / Uint64ToFloat(b->value);
+        }
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        if (out->type == OBJECT_TYPE_FLOAT) {
+            out->value = Float2Uint64(Uint64ToFloat(a->value) / Uint64ToFloat(b->value));
+        } else {
+            out->value = Uint64ToFloat(a->value) / Uint64ToFloat(b->value);
+        }
+        isDone = true;
     } else {
-        out->value = a->value / b->value;
+        out->value = a->value - b->value;
+        isDone = true;
     }
     printf("DIV\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpRem(Object* a, Object* b, Object* out) {
@@ -250,40 +338,117 @@ bool objectExpBoolOr(Object* a, Object* b, Object* out) {
 }
 
 bool objectExpBoolEq(Object* a, Object* b, Object* out) {
-    out->value = a->value == b->value;
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) == b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value == Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) == Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value == b->value;
+        isDone = true;
+    }
     printf("EQL\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBoolNeq(Object* a, Object* b, Object* out) {
-    out->value = a->value != b->value;
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) != b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value != Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) != Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value != b->value;
+        isDone = true;
+    }
     printf("NEQ\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpGtr(Object* a, Object* b, Object* out) {
     bool isDone = false;
-    out->value = a->value > b->value;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) > b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value > Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) > Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value > b->value;
+        isDone = true;
+    }
     printf("GTR\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpLes(Object* a, Object* b, Object* out) {
-    out->value = a->value < b->value;
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) < b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value < Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) < Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value < b->value;
+        isDone = true;
+    }
     printf("LES\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpGeq(Object* a, Object* b, Object* out) {
-    out->value = a->value >= b->value;
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) >= b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value >= Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) >= Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value >= b->value;
+        isDone = true;
+    }
     printf("GEQ\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpLeq(Object* a, Object* b, Object* out) {
-    out->value = a->value <= b->value;
+    bool isDone = false;
+    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
+        out->value = Uint64ToFloat(a->value) <= b->value;
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = a->value <= Uint64ToFloat(b->value);
+        isDone = true;
+    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
+        out->value = Uint64ToFloat(a->value) <= Uint64ToFloat(b->value);
+        isDone = true;
+    } else {
+        out->value = a->value <= b->value;
+        isDone = true;
+    }
     printf("LEQ\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBinary(const char* op, Object* a, Object* b, Object* out) {
@@ -365,79 +530,85 @@ bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
     if (isDone) {
         Object* target = findVariable(dest->symbol->name);
         if (target != NULL) {
-            target->value = out->value;
+            target->value = dest->value;
         }
     }
     return isDone;
 }
 
-bool objectValueAssign(Object* dest, Object* val, Object* out) {
-    objectCast(dest->type, val, dest);
-    out->value = dest->value;
+bool objectValueAssign(Object* a, Object* b, Object* out) {
+    objectCast(a->type, b, a);
+    out->value = a->value;
     printf("EQL_ASSIGN\n");
     return true;
 }
 
-bool objectExpAddAssign(Object* dest, Object* val, Object* out) {
-    Object val_casted = *val;
-    objectCast(dest->type, val, &val_casted);
-    out->value = dest->value += val_casted.value;
+bool objectExpAddAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpAdd(a, b, out);
+    a->value = out->value;
     printf("ADD_ASSIGN\n");
     return true;
 }
 
-bool objectExpSubAssign(Object* dest, Object* val, Object* out) {
-    Object val_casted = *val;
-    objectCast(dest->type, val, &val_casted);
-    out->value = dest->value -= val->value;
+bool objectExpSubAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpSub(a, b, out);
+    a->value = out->value;
     printf("SUB_ASSIGN\n");
     return true;
 }
 
-bool objectExpMulAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value *= val->value;
+bool objectExpMulAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpMul(a, b, out);
+    a->value = out->value;
     printf("MUL_ASSIGN\n");
     return true;
 }
 
-bool objectExpDivAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value /= val->value;
+bool objectExpDivAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpDiv(a, b, out);
+    a->value = out->value;
     printf("DIV_ASSIGN\n");
     return true;
 }
 
-bool objectExpRemAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value %= val->value;
+bool objectExpRemAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpRem(a, b, out);
+    a->value = out->value;
     printf("REM_ASSIGN\n");
     return true;
 }
 
-bool objectExpBanAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value &= val->value;
+bool objectExpBanAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpBinAnd(a, b, out);
+    a->value = out->value;
     printf("BAN_ASSIGN\n");
     return true;
 }
 
-bool objectExpBorAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value |= val->value;
+bool objectExpBorAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpBinOr(a, b, out);
+    a->value = out->value;
     printf("BOR_ASSIGN\n");
     return true;
 }
 
-bool objectExpBxoAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value ^= val->value;
+bool objectExpBxoAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpBinXor(a, b, out);
+    a->value = out->value;
     printf("BXO_ASSIGN\n");
     return true;
 }
 
-bool objectExpShrAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value >>= val->value;
+bool objectExpShrAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpShr(a, b, out);
+    a->value = out->value;
     printf("SHR_ASSIGN\n");
     return true;
 }
 
-bool objectExpShlAssign(Object* dest, Object* val, Object* out) {
-    out->value = dest->value <<= val->value;
+bool objectExpShlAssign(Object* a, Object* b, Object* out) {
+    bool isDone = objectExpShl(a, b, out);
+    a->value = out->value;
     printf("SHL_ASSIGN\n");
     return true;
 }
