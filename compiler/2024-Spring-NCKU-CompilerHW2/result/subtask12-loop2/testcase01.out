@@ -1,11 +1,24 @@
 > Create symbol table (scope level 0)
 func: main
-> Insert `main` (addr: 0) to scope level 0
+> Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
 INT_LIT 0
-> Insert `counter` (addr: 2) to scope level 1
-/home/share/hw2/input/subtask12-loop2/testcase01.cpp:4:5: error:  syntax error
-     4 |    while  counter < 100000 ) {
-       |    ^
-Total lines: 4
+> Insert `counter` (addr: 1) to scope level 1
+WHILE
+IDENT (name=counter, address=1)
+INT_LIT 100000
+LES
+> Create symbol table (scope level 2)
+IDENT (name=counter, address=1)
+INT_LIT 1
+ADD_ASSIGN
+IDENT (name=counter, address=1)
+INT_LIT 99999
+EQL
+IF
+> Create symbol table (scope level 3)
+/home/share/hw2/input/subtask12-loop2/testcase01.cpp:7:13: error:  syntax error
+     7 |            break 
+       |            ^
+Total lines: 7

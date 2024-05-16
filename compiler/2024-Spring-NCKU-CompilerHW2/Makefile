@@ -1,6 +1,6 @@
 CFLAGS := -Wall -O0 -ggdb
 INCLUDES = -I include/ -I src/
-YFLAG := -d -v 
+YFLAG := -d -v
 MAIN_SRC := ./main.c
 LEX_SRC := ./compiler.l
 YAC_SRC := ./compiler.y

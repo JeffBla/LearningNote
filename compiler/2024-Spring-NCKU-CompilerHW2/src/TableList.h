@@ -8,7 +8,6 @@
 
 /**
  * Talbe List keep each scope's object list
- * Object List keep each object in the scope
  */
 
 typedef struct objectList ObjectList;

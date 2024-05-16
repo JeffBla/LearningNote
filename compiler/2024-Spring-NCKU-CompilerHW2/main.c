@@ -4,16 +4,6 @@
 
 #define toupper(_char) (_char - (char)32)
 
-const char* objectTypeName[] = {
-    [OBJECT_TYPE_UNDEFINED] = "undefined",
-    [OBJECT_TYPE_VOID] = "void",
-    [OBJECT_TYPE_INT] = "int",
-    [OBJECT_TYPE_FLOAT] = "float",
-    [OBJECT_TYPE_BOOL] = "bool",
-    [OBJECT_TYPE_STR] = "string",
-    [OBJECT_TYPE_FUNCTION] = "function",
-};
-
 char* yyInputFileName;
 bool compileError;
 
@@ -25,6 +15,7 @@ ObjectType variableIdentType;
 
 TableList table_list;
 FunctionParmList cout_parm_list;
+FunctionParmList func_parm_list;
 
 void pushScope() {
     // New scope will be indexed by the size of the table list
@@ -35,40 +26,53 @@ void pushScope() {
 
 void dumpScope() {
     printf("\n");
-    printf("> Dump symbol table (scope level %ld)\n", table_list.size - 1);
+    printf("> Dump symbol table (scope level: %ld)\n", table_list.size - 1);
     TableListNode* curr_table_node = FindCurrTableNode(&table_list);
     ObjectNode* curr_object_node = curr_table_node->object_list->head;
     // Index     Name                Type      Addr      Lineno    Func_sig
-    printf("%-8s %-20s %-8s %-8s %-8s %-8s\n", "Index", "Name", "Type", "Addr", "Lineno", "Func_sig");
+    printf("%-10s%-20s%-10s%-10s%-10s%-10s\n", "Index", "Name", "Type", "Addr", "Lineno", "Func_sig");
     if (curr_object_node != NULL) {
         // Loop through the object list
         while (curr_object_node->next != NULL) {
             curr_object_node = curr_object_node->next;
         }
 
+        char* func_sig = "-";
+        if (curr_object_node->object->type == OBJECT_TYPE_FUNCTION) {
+            func_sig = curr_object_node->object->symbol->func_sig;
+        }
         while (curr_object_node != NULL) {
-            printf("%-8d %-20s %-8s %-8ld %-8d %-8s\n",
+            printf("%-10d%-20s%-10s%-10ld%-10d%-10s\n",
                    curr_object_node->object->symbol->index,
                    curr_object_node->object->symbol->name,
                    objectTypeName[curr_object_node->object->type],
                    curr_object_node->object->symbol->addr,
                    curr_object_node->object->symbol->lineno,
-                   "-");
+                   func_sig);
             curr_object_node = curr_object_node->prev;
         }
     }
     PopTalble(&table_list);
 }
 
+Object* findVariable_mainTable(char* variableName) {
+    return findVariable(variableName, &table_list);
+}
+
 Object* createVariable(ObjectType variableType, char* variableName, int variableFlag) {
-    printf("> Insert `%s` (addr: %d) to scope level %ld\n", variableName, variableAddress++, table_list.size - 1);
+    int64_t variableIndex = variableAddress;
+    if (strcmp(variableName, "main") == 0) {
+        variableAddress = -1;
+        variableIndex = 0;
+    }
+    printf("> Insert `%s` (addr: %d) to scope level %ld\n", variableName, variableAddress, table_list.size - 1);
     // Populate the object
     Object* new_object = (Object*)malloc(sizeof(Object));
     new_object->type = variableType;
     new_object->value = 0;
     new_object->symbol = (SymbolData*)malloc(sizeof(SymbolData));
     new_object->symbol->name = variableName;
-    new_object->symbol->index = variableAddress;
+    new_object->symbol->index = variableIndex;
     new_object->symbol->addr = variableAddress;
     new_object->symbol->lineno = yylineno;
     variableAddress++;
@@ -83,7 +87,7 @@ ObjectType PrintIdent(char* ident_name) {
     if (strcmp(ident_name, "endl") == 0) {
         obj_type = OBJECT_TYPE_STR;
     } else {
-        Object* curr = findVariable(ident_name);
+        Object* curr = findVariable_mainTable(ident_name);
         if (curr != NULL) {
             obj_type = curr->type;
             addr = curr->symbol->addr;
@@ -92,19 +96,6 @@ ObjectType PrintIdent(char* ident_name) {
 
     printf("IDENT (name=%s, address=%d)\n", ident_name, addr);
     return obj_type;
-}
-
-void pushFunParm(ObjectType variableType, char* variableName, int variableFlag) {
-    createVariable(variableType, variableName, variableFlag);
-}
-
-void createFunction(ObjectType variableType, char* funcName) {
-    printf("func: %s\n", funcName);
-
-    createVariable(OBJECT_TYPE_FUNCTION, funcName, VAR_FLAG_DEFAULT);
-}
-
-void debugPrintInst(char instc, Object* a, Object* b, Object* out) {
 }
 
 bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
@@ -140,156 +131,51 @@ bool objectExpression(const char* op, Object* dest, Object* val, Object* out) {
 }
 
 bool objectExpNeg(Object* dest, Object* out) {
-    out->type = dest->type;
-    if (dest->type == OBJECT_TYPE_FLOAT) {
-        out->value = Float2Uint64(-Uint64ToFloat(dest->value));
-    } else {
-        out->value = -dest->value;
-    }
+    bool isDone = objectNeg(dest, out);
     printf("NEG\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpAdd(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) + b->value);
-        } else {
-            out->value = Uint64ToFloat(a->value) + b->value;
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(a->value + Uint64ToFloat(b->value));
-        } else {
-            out->value = a->value + Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) + Uint64ToFloat(b->value));
-        } else {
-            out->value = Uint64ToFloat(a->value) + Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else {
-        out->value = a->value + b->value;
-        isDone = true;
-    }
+    bool isDone = objectAdd(a, b, out);
     printf("ADD\n");
     return isDone;
 }
 
 bool objectExpSub(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) - b->value);
-        } else {
-            out->value = Uint64ToFloat(a->value) - b->value;
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(a->value - Uint64ToFloat(b->value));
-        } else {
-            out->value = a->value - Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) - Uint64ToFloat(b->value));
-        } else {
-            out->value = Uint64ToFloat(a->value) - Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else {
-        out->value = a->value - b->value;
-        isDone = true;
-    }
+    bool isDone = objectSub(a, b, out);
     printf("SUB\n");
     return isDone;
 }
 
 bool objectExpMul(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) * b->value);
-        } else {
-            out->value = Uint64ToFloat(a->value) * b->value;
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(a->value * Uint64ToFloat(b->value));
-        } else {
-            out->value = a->value * Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) * Uint64ToFloat(b->value));
-        } else {
-            out->value = Uint64ToFloat(a->value) * Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else {
-        out->value = a->value * b->value;
-        isDone = true;
-    }
+    bool isDone = objectMul(a, b, out);
     printf("MUL\n");
     return isDone;
 }
 
 bool objectExpDiv(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) / b->value);
-        } else {
-            out->value = Uint64ToFloat(a->value) / b->value;
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(a->value / Uint64ToFloat(b->value));
-        } else {
-            out->value = a->value / Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        if (out->type == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64(Uint64ToFloat(a->value) / Uint64ToFloat(b->value));
-        } else {
-            out->value = Uint64ToFloat(a->value) / Uint64ToFloat(b->value);
-        }
-        isDone = true;
-    } else {
-        out->value = a->value - b->value;
-        isDone = true;
-    }
+    bool isDone = objectDiv(a, b, out);
     printf("DIV\n");
     return isDone;
 }
 
 bool objectExpRem(Object* a, Object* b, Object* out) {
-    out->value = a->value % b->value;
+    bool isDone = objectRem(a, b, out);
     printf("REM\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpShr(Object* a, Object* b, Object* out) {
-    out->value = a->value >> b->value;
+    bool isDone = objectShr(a, b, out);
     printf("SHR\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpShl(Object* a, Object* b, Object* out) {
-    out->value = a->value << b->value;
+    bool isDone = objectShl(a, b, out);
     printf("SHL\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out) {
@@ -320,133 +206,55 @@ bool objectExpBoolean(const char* op, Object* a, Object* b, Object* out) {
 }
 
 bool objectExpBoolNot(Object* a, Object* out) {
-    out->value = !a->value;
+    bool isDone = objectBoolNot(a, out);
     printf("NOT\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBoolAnd(Object* a, Object* b, Object* out) {
-    out->value = a->value && b->value;
+    bool isDone = objectBoolAnd(a, b, out);
     printf("LAN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBoolOr(Object* a, Object* b, Object* out) {
-    out->value = a->value || b->value;
+    bool isDone = objectBoolOr(a, b, out);
     printf("LOR\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBoolEq(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) == b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value == Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) == Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value == b->value;
-        isDone = true;
-    }
+    bool isDone = objectBoolEq(a, b, out);
     printf("EQL\n");
     return isDone;
 }
 
 bool objectExpBoolNeq(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) != b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value != Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) != Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value != b->value;
-        isDone = true;
-    }
+    bool isDone = objectBoolNeq(a, b, out);
     printf("NEQ\n");
     return isDone;
 }
 
 bool objectExpGtr(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) > b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value > Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) > Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value > b->value;
-        isDone = true;
-    }
+    bool isDone = objectGtr(a, b, out);
     printf("GTR\n");
     return isDone;
 }
 
 bool objectExpLes(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) < b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value < Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) < Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value < b->value;
-        isDone = true;
-    }
+    bool isDone = objectLes(a, b, out);
     printf("LES\n");
     return isDone;
 }
 
 bool objectExpGeq(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) >= b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value >= Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) >= Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value >= b->value;
-        isDone = true;
-    }
+    bool isDone = objectGeq(a, b, out);
     printf("GEQ\n");
     return isDone;
 }
 
 bool objectExpLeq(Object* a, Object* b, Object* out) {
-    bool isDone = false;
-    if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_INT) {
-        out->value = Uint64ToFloat(a->value) <= b->value;
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_INT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = a->value <= Uint64ToFloat(b->value);
-        isDone = true;
-    } else if (a->type == OBJECT_TYPE_FLOAT && b->type == OBJECT_TYPE_FLOAT) {
-        out->value = Uint64ToFloat(a->value) <= Uint64ToFloat(b->value);
-        isDone = true;
-    } else {
-        out->value = a->value <= b->value;
-        isDone = true;
-    }
+    bool isDone = objectLeq(a, b, out);
     printf("LEQ\n");
     return isDone;
 }
@@ -475,27 +283,27 @@ bool objectExpBinary(const char* op, Object* a, Object* b, Object* out) {
 }
 
 bool objectExpBinNot(Object* dest, Object* out) {
-    out->value = ~dest->value;
+    bool isDone = objectBinNot(dest, out);
     printf("BNT\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBinOr(Object* a, Object* b, Object* out) {
-    out->value = a->value | b->value;
+    bool isDone = objectBinOr(a, b, out);
     printf("BOR\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBinXor(Object* a, Object* b, Object* out) {
-    out->value = a->value ^ b->value;
+    bool isDone = objectBinXor(a, b, out);
     printf("BXO\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBinAnd(Object* a, Object* b, Object* out) {
-    out->value = a->value & b->value;
+    bool isDone = objectBinAnd(a, b, out);
     printf("BAN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
@@ -528,7 +336,7 @@ bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
     }
 
     if (isDone) {
-        Object* target = findVariable(dest->symbol->name);
+        Object* target = findVariable_mainTable(dest->symbol->name);
         if (target != NULL) {
             target->value = dest->value;
         }
@@ -536,118 +344,85 @@ bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
     return isDone;
 }
 
-bool objectValueAssign(Object* a, Object* b, Object* out) {
-    objectCast(a->type, b, a);
-    out->value = a->value;
+bool objectValueAssign(Object* dest, Object* val, Object* out) {
+    bool isDone = objectAssign(dest, val, out);
     printf("EQL_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpAddAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpAdd(a, b, out);
-    a->value = out->value;
+    bool isDone = objectAddAssign(a, b, out);
     printf("ADD_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpSubAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpSub(a, b, out);
-    a->value = out->value;
+    bool isDone = objectSubAssign(a, b, out);
     printf("SUB_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpMulAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpMul(a, b, out);
-    a->value = out->value;
+    bool isDone = objectMulAssign(a, b, out);
     printf("MUL_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpDivAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpDiv(a, b, out);
-    a->value = out->value;
+    bool isDone = objectDivAssign(a, b, out);
     printf("DIV_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpRemAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpRem(a, b, out);
-    a->value = out->value;
+    bool isDone = objectRemAssign(a, b, out);
     printf("REM_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBanAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpBinAnd(a, b, out);
-    a->value = out->value;
+    bool isDone = objectBanAssign(a, b, out);
     printf("BAN_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBorAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpBinOr(a, b, out);
-    a->value = out->value;
+    bool isDone = objectBorAssign(a, b, out);
     printf("BOR_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpBxoAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpBinXor(a, b, out);
-    a->value = out->value;
+    bool isDone = objectBxoAssign(a, b, out);
     printf("BXO_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpShrAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpShr(a, b, out);
-    a->value = out->value;
+    bool isDone = objectShrAssign(a, b, out);
     printf("SHR_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
 bool objectExpShlAssign(Object* a, Object* b, Object* out) {
-    bool isDone = objectExpShl(a, b, out);
-    a->value = out->value;
+    bool isDone = objectShlAssign(a, b, out);
     printf("SHL_ASSIGN\n");
-    return true;
+    return isDone;
 }
 
-bool objectIncAssign(Object* a, Object* out) {
-    return false;
+bool objectExpIncAssign(Object* a, Object* out) {
+    bool isDone = objectIncAssign(a, out);
+    printf("INC_ASSIGN\n");
+    return isDone;
+}
+bool objectExpDecAssign(Object* a, Object* out) {
+    bool isDone = objectDecAssign(a, out);
+    printf("DEC_ASSIGN\n");
+    return isDone;
 }
 
-bool objectDecAssign(Object* a, Object* out) {
-    return false;
-}
-
-bool objectCast(ObjectType variableType, Object* dest, Object* out) {
-    bool isDone = false;
-    out->type = variableType;
-    if (dest->type == variableType) {
-        out->value = dest->value;
-        isDone = true;
-    } else {
-        if (dest->type == OBJECT_TYPE_INT && variableType == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64((float)dest->value);
-            isDone = true;
-        } else if (dest->type == OBJECT_TYPE_INT && variableType == OBJECT_TYPE_BOOL) {
-            out->value = dest->value != 0;
-            isDone = true;
-        } else if (dest->type == OBJECT_TYPE_FLOAT && variableType == OBJECT_TYPE_INT) {
-            out->value = (int)Uint64ToFloat(dest->value);
-            isDone = true;
-        } else if (dest->type == OBJECT_TYPE_FLOAT && variableType == OBJECT_TYPE_BOOL) {
-            out->value = Uint64ToFloat(dest->value) != 0.0;
-            isDone = true;
-        } else if (dest->type == OBJECT_TYPE_BOOL && variableType == OBJECT_TYPE_INT) {
-            out->value = dest->value;
-            isDone = true;
-        } else if (dest->type == OBJECT_TYPE_BOOL && variableType == OBJECT_TYPE_FLOAT) {
-            out->value = Float2Uint64((float)dest->value);
-            isDone = true;
-        }
-    }
+bool objectExpCast(ObjectType variableType, Object* dest, Object* out) {
+    bool isDone = objectCast(variableType, dest, out);
 
 #ifdef DEBUG
     if (isDone) {
@@ -666,20 +441,111 @@ bool objectCast(ObjectType variableType, Object* dest, Object* out) {
     return isDone;
 }
 
-Object* findVariable(char* variableName) {
-    if (variableName == NULL) {
-        return NULL;
+void pushFunParm(ObjectType variableType, char* variableName, int variableFlag) {
+    createVariable(variableType, variableName, variableFlag);
+
+    // Push the function parameter to the function parameter list
+    FunctionParmTypeNode* new_node = (FunctionParmTypeNode*)malloc(sizeof(FunctionParmTypeNode));
+    new_node->type = variableType;
+    new_node->value = 0;
+    new_node->flag = variableFlag;
+    new_node->next = NULL;
+    if (func_parm_list.head == NULL) {
+        func_parm_list.head = new_node;
+    } else {
+        FunctionParmTypeNode* curr = func_parm_list.head;
+        while (curr->next != NULL) {
+            curr = curr->next;
+        }
+
+        curr->next = new_node;
+    }
+}
+
+void clearMainFunParm(char* funcName) {
+    Object* funcObj = findVariable_mainTable(funcName);
+
+    FunctionParmTypeNode* curr = func_parm_list.head;
+    char *func_sig = strdup("("), *new_func_sig;
+
+    while (curr != NULL) {
+        if (curr->flag & VAR_FLAG_ARRAY) {
+            new_func_sig = strcat_copy(func_sig, "[");
+            free(func_sig);
+            func_sig = new_func_sig;
+        }
+        if (curr->type == OBJECT_TYPE_INT) {
+            new_func_sig = strcat_copy(func_sig, "I");
+        } else if (curr->type == OBJECT_TYPE_FLOAT) {
+            new_func_sig = strcat_copy(func_sig, "F");
+        } else if (curr->type == OBJECT_TYPE_BOOL) {
+            new_func_sig = strcat_copy(func_sig, "B");
+        } else if (curr->type == OBJECT_TYPE_STR) {
+            new_func_sig = strcat_copy(func_sig, "Ljava/lang/String;");
+        } else {
+            new_func_sig = strcat_copy(func_sig, "I");
+        }
+
+        free(func_sig);
+        func_sig = new_func_sig;
+
+        curr = curr->next;
     }
 
-    TableListNode* curr_table_node = FindCurrTableNode(&table_list);
-    ObjectNode* obj_node = curr_table_node->object_list->head;
-    while (obj_node != NULL) {
-        if (strcmp(obj_node->object->symbol->name, variableName) == 0) {
-            return obj_node->object;
-        }
-        obj_node = obj_node->next;
+    new_func_sig = strcat_copy(func_sig, ")");
+    free(func_sig);
+    func_sig = new_func_sig;
+
+    new_func_sig = strcat_copy(func_sig, funcObj->symbol->func_sig);
+    free(func_sig);
+    funcObj->symbol->func_sig = new_func_sig;
+
+    clearFunParm(&func_parm_list);
+}
+
+void clearFunParm(FunctionParmList* target_func_parm_list) {
+    // Clear the function parameter list
+    FunctionParmTypeNode* curr = target_func_parm_list->head;
+    while (curr != NULL) {
+        FunctionParmTypeNode* temp = curr;
+        curr = curr->next;
+        free(temp);
     }
-    return NULL;
+    target_func_parm_list->head = NULL;
+}
+
+void createFunction(ObjectType variableType, char* funcName) {
+    printf("func: %s\n", funcName);
+
+    Object* funcObj = createVariable(OBJECT_TYPE_FUNCTION, funcName, VAR_FLAG_DEFAULT);
+    if (variableType == OBJECT_TYPE_INT)
+        funcObj->symbol->func_sig = strdup("I");
+    else if (variableType == OBJECT_TYPE_FLOAT)
+        funcObj->symbol->func_sig = strdup("F");
+    else if (variableType == OBJECT_TYPE_BOOL)
+        funcObj->symbol->func_sig = strdup("B");
+    else if (variableType == OBJECT_TYPE_STR)
+        funcObj->symbol->func_sig = strdup("Ljava/lang/String;");
+    else if (variableType == OBJECT_TYPE_VOID)
+        funcObj->symbol->func_sig = strdup("V");
+    else
+        funcObj->symbol->func_sig = strdup("I");
+}
+
+void debugPrintInst(char instc, Object* a, Object* b, Object* out) {
+}
+
+bool defineVariable(Object* variable, Object* value) {
+    if (variable == NULL) {
+        return false;
+    }
+
+    if (value == NULL) {
+        return false;
+    }
+
+    variable->value = value->value;
+    return true;
 }
 
 void pushFunInParm(Object* variable) {
@@ -722,13 +588,7 @@ void stdoutPrint() {
 }
 
 void ClearCoutParm() {
-    FunctionParmTypeNode* curr = cout_parm_list.head;
-    while (curr != NULL) {
-        FunctionParmTypeNode* temp = curr;
-        curr = curr->next;
-        free(temp);
-    }
-    cout_parm_list.head = NULL;
+    clearFunParm(&cout_parm_list);
 }
 
 int main(int argc, char* argv[]) {
@@ -745,6 +605,7 @@ int main(int argc, char* argv[]) {
     table_list.head = NULL;
     table_list.size = 0;
     cout_parm_list.head = NULL;
+    func_parm_list.head = NULL;
 
     // Start parsing
     yyparse();

@@ -1,9 +1,10 @@
 > Create symbol table (scope level 0)
 func: main
-> Insert `main` (addr: 0) to scope level 0
+> Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
-/home/share/hw2/input/subtask12-loop2/testcase02.cpp:2:10: error:  syntax error
-     2 |    int a[ 0] = { 10, 21, 30, 41, 50 };
-       |         ^
+> Insert `a` (addr: 1) to scope level 1
+/home/share/hw2/input/subtask12-loop2/testcase02.cpp:2:15: error:  syntax error
+     2 |    int a[10] = { 10, 21, 30, 41, 50 };
+       |              ^
 Total lines: 2

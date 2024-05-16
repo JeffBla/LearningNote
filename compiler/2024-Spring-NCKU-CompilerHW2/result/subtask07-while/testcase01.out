@@ -1,10 +1,69 @@
 > Create symbol table (scope level 0)
 func: main
-> Insert `main` (addr: 0) to scope level 0
+> Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `argv` (addr: 0) to scope level 1
 INT_LIT 0
-/home/share/hw2/input/subtask07-while/testcase01.cpp:2:14: error:  syntax error
-     2 |    int a = 0, b = 0, c = 10;
-       |             ^
-Total lines: 2
+> Insert `a` (addr: 1) to scope level 1
+INT_LIT 0
+> Insert `b` (addr: 2) to scope level 1
+INT_LIT 10
+> Insert `c` (addr: 3) to scope level 1
+WHILE
+IDENT (name=c, address=3)
+INT_LIT 0
+NEQ
+> Create symbol table (scope level 2)
+IDENT (name=c, address=3)
+INT_LIT 1
+SUB_ASSIGN
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+WHILE
+IDENT (name=a, address=1)
+INT_LIT 0
+EQL
+IDENT (name=b, address=2)
+INT_LIT 0
+EQL
+LOR
+IDENT (name=a, address=1)
+INT_LIT 0
+EQL
+IDENT (name=b, address=2)
+INT_LIT 10
+EQL
+LOR
+IDENT (name=c, address=3)
+INT_LIT 0
+EQL
+LOR
+LOR
+> Create symbol table (scope level 2)
+IDENT (name=a, address=1)
+INT_LIT 1
+SUB_ASSIGN
+IDENT (name=b, address=2)
+INT_LIT 1
+SUB_ASSIGN
+IDENT (name=c, address=3)
+INT_LIT 1
+SUB_ASSIGN
+
+> Dump symbol table (scope level: 2)
+Index     Name                Type      Addr      Lineno    Func_sig  
+INT_LIT 0
+RETURN
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    0         1         -         
+1         a                   int       1         2         -         
+2         b                   int       2         2         -         
+3         c                   int       3         2         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         main                function  -1        1         ([Ljava/lang/String;)I
+Total lines: 14

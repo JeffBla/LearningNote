@@ -1,5 +1,7 @@
 #include "TableList.h"
 
+#include <stdio.h>
+
 TableListNode* FindCurrTableNode(TableList* table_list) {
     return table_list->head;
 }
@@ -24,6 +26,7 @@ void PopTalble(TableList* table_list) {
     while (curr_object_node != NULL) {
         ObjectNode* temp = curr_object_node;
         curr_object_node = curr_object_node->next;
+        FreeObject(temp->object);
         free(temp);
     }
     free(curr_table_node->object_list);

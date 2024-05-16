@@ -18,3 +18,12 @@ void PushObject(Object* object, TableList* table_list) {
         object_list->head = new_object_node;
     }
 }
+
+void FreeObject(Object* object) {
+    if (object->symbol != NULL) {
+        free(object->symbol->func_sig);
+        free(object->symbol->name);
+        free(object->symbol);
+    }
+    free(object);
+}

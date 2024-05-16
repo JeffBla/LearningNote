@@ -39,9 +39,9 @@
 %type <object_val> DefineVariable
 %type <object_val> Expression ExprAssign ExprLor ExprLan ExprBor ExprBxo ExprBan ExprEqlNeq ExprGtrLesGeqLeq ExprShlShr ExprAddSub ExprMulDivRem ExprNotBntNeg ExprFinal
 
-%right NOT BNT
-%left MUL DIV REM
+%right NOT BNT 
 %left ADD SUB
+%left MUL DIV REM
 %left SHL SHR
 %left GTR LES GEQ LEQ 
 %left EQL NEQ
@@ -84,9 +84,9 @@ DefineVariableList
 ;
 
 DefineVariable
-    : IDENT EQL_ASSIGN Expression {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_DEFAULT); if(!objectExpAssign("=", findVariable($<s_var>1), &$<object_val>3, &$$)) YYABORT; }
+    : IDENT EQL_ASSIGN Expression {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_DEFAULT); if(!defineVariable(findVariable_mainTable($<s_var>1), &$<object_val>3)) YYABORT; }
     | IDENT {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_DEFAULT); }
-    | '*' IDENT EQL_ASSIGN Expression {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER); if(!objectExpAssign("=", findVariable($<s_var>1), &$<object_val>3, &$$)) YYABORT; }
+    | '*' IDENT EQL_ASSIGN Expression {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER); if(!defineVariable( findVariable_mainTable($<s_var>1), &$<object_val>3)) YYABORT; }
     | '*' IDENT {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER); }
     | IDENT '[' INT_LIT ']' {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_ARRAY); }
     | IDENT '[' ']' {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_ARRAY); }
@@ -100,7 +100,7 @@ DefineVariable
 
 /* Function */
 FunctionDefStmt
-    :  VARIABLE_T IDENT { createFunction($<var_type>1, $<s_var>2); pushScope(); }'(' FunctionParameterStmtList ')' '{' StmtList '}' { dumpScope(); }
+    :  VARIABLE_T IDENT { createFunction($<var_type>1, $<s_var>2); pushScope(); }'(' FunctionParameterStmtList ')' { clearMainFunParm($<s_var>2); } '{' StmtList '}' { dumpScope(); }
 ;
 FunctionParameterStmtList 
     : FunctionParameterStmtList ',' FunctionParameterStmt
@@ -120,11 +120,51 @@ StmtList
 ;
 Stmt
     : ';'
+    | CompoundStmt
     | DefineVariableStmt
     | Expression ';'
     | COUT CoutParmListStmt ';' { stdoutPrint(); }
+    | SelectionStmt
+    | WHILEStmt
+    | FORStmt
     | RETURN Expression ';' { printf("RETURN\n"); }
 ;
+
+CompoundStmt
+    : '{' { pushScope(); } BlockItemList '}'{ dumpScope(); }
+    ;
+
+BlockItemList
+    : BlockItemList BlockItem
+    | BlockItem
+    ;
+
+BlockItem
+    : Stmt
+    ;
+
+SelectionStmt
+    : IfStmt
+    | SelectionStmt ElseStmt
+    ;
+
+IfStmt
+    : IF '(' Expression ')' { printf("IF\n"); } CompoundStmt
+    // | IF '(' Expression ')' { printf("IF\n"); pushScope(); } Stmt
+    ;
+
+ElseStmt
+    : ELSE { printf("ELSE\n"); } CompoundStmt
+    // | ELSE { printf("ELSE\n"); pushScope(); } Stmt
+    ;
+
+WHILEStmt
+    : WHILE { printf("WHILE\n"); } '(' Expression ')' CompoundStmt
+    ;
+
+FORStmt
+    : FOR { printf("FOR\n"); pushScope(); } '(' DefineVariable ';' Expression ';' Expression ')' '{' StmtList '}' { dumpScope(); } 
+    ;
 
 CoutParmListStmt
     : SHL ExprAddSub {  /* printf("ExprAddSub: %d\n", $<object_val>2.value); */ pushFunInParm(&$<object_val>2); } CoutParmListStmt
@@ -133,7 +173,7 @@ CoutParmListStmt
 
 /// Expression
 Expression
-    : ExprAssign { $$ = $1;}
+    : ExprAssign { $$ = $1; }
 ;
 
 /// Right associative
@@ -214,14 +254,14 @@ ExprNotBntNeg
     : NOT ExprNotBntNeg { if(!objectExpBoolean("!", &$<object_val>2, &$<object_val>2, &$$)) YYABORT; }
     | BNT ExprNotBntNeg { if(!objectExpBinary("~", &$<object_val>2, &$<object_val>2, &$$)) YYABORT; }
     | SUB ExprNotBntNeg { if(!objectExpNeg(&$<object_val>2, &$$)) YYABORT; }
-    | '(' VARIABLE_T ')' ExprNotBntNeg { if(!objectCast($<var_type>2, &$4, &$$)) YYABORT; }
+    | '(' VARIABLE_T ')' ExprNotBntNeg { if(!objectExpCast($<var_type>2, &$4, &$$)) YYABORT; }
     | ExprFinal {$$ = $1;}
 ;
 
 ExprFinal
     : '(' Expression ')' { $$ = $2;}
     | '[' Expression ']' { $$ = $2;}
-    | IDENT { if(strcmp($<s_var>1, "endl") != 0) $$ = *findVariable($<s_var>1); $$.type = PrintIdent($<s_var>1); }
+    | IDENT { if(strcmp($<s_var>1, "endl") != 0) $$ = *findVariable_mainTable($<s_var>1); $$.type = PrintIdent($<s_var>1); }
     | FLOAT_LIT { $$.value = Float2Uint64($1); $$.type = OBJECT_TYPE_FLOAT; printf("FLOAT_LIT %f\n", $<f_var>1); } 
     | INT_LIT { $$.value = $1; $$.type = OBJECT_TYPE_INT; printf("INT_LIT %d\n", $<i_var>1); }  
     | BOOL_LIT { $$.value = $1; $$.type = OBJECT_TYPE_BOOL; printf("BOOL_LIT %s\n", $<b_var>1 == 0 ? "FALSE" : "TRUE"); } 

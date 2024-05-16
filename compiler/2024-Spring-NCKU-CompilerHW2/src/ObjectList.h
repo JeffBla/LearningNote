@@ -23,4 +23,6 @@ typedef struct objectList {
 /// Act as stack
 void PushObject(Object* object, TableList* table_list);
 
+void FreeObject(Object* object);
+
 #endif  // OBJECT_LIST_H
