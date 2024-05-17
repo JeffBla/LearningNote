@@ -13,6 +13,10 @@ extern const char* objectTypeName[];
 
 Object* findVariable(char* variableName, TableList* table_list);
 
+Object* findVariable_func(char* variableName, TableList* table_list);
+
+ObjectType funcReturnType(Object* func);
+
 char* strcat_copy(const char* str1, const char* str2);
 
 void ExpTypeCheck(Object* a, Object* b, Object* out);

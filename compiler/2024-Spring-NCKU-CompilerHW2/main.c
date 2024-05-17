@@ -20,7 +20,6 @@ FunctionParmList func_parm_list;
 void pushScope() {
     // New scope will be indexed by the size of the table list
     printf("> Create symbol table (scope level %ld)\n", table_list.size);
-    variableAddress = 0;
     PushTable(&table_list);
 }
 
@@ -37,11 +36,13 @@ void dumpScope() {
             curr_object_node = curr_object_node->next;
         }
 
-        char* func_sig = "-";
-        if (curr_object_node->object->type == OBJECT_TYPE_FUNCTION) {
-            func_sig = curr_object_node->object->symbol->func_sig;
-        }
+        char* func_sig;
         while (curr_object_node != NULL) {
+            if (curr_object_node->object->type == OBJECT_TYPE_FUNCTION) {
+                func_sig = curr_object_node->object->symbol->func_sig;
+            } else {
+                func_sig = "-";
+            }
             printf("%-10d%-20s%-10s%-10ld%-10d%-10s\n",
                    curr_object_node->object->symbol->index,
                    curr_object_node->object->symbol->name,
@@ -59,23 +60,28 @@ Object* findVariable_mainTable(char* variableName) {
     return findVariable(variableName, &table_list);
 }
 
+Object* findVariable_mainTable_func(char* variableName) {
+    return findVariable_func(variableName, &table_list);
+}
+
 Object* createVariable(ObjectType variableType, char* variableName, int variableFlag) {
-    int64_t variableIndex = variableAddress;
-    if (strcmp(variableName, "main") == 0) {
-        variableAddress = -1;
-        variableIndex = 0;
+    int tmpAddr = variableAddress;
+    if (variableType == OBJECT_TYPE_FUNCTION) {
+        tmpAddr = -1;
     }
-    printf("> Insert `%s` (addr: %d) to scope level %ld\n", variableName, variableAddress, table_list.size - 1);
+    printf("> Insert `%s` (addr: %d) to scope level %ld\n", variableName, tmpAddr, table_list.size - 1);
     // Populate the object
     Object* new_object = (Object*)malloc(sizeof(Object));
     new_object->type = variableType;
     new_object->value = 0;
     new_object->symbol = (SymbolData*)malloc(sizeof(SymbolData));
     new_object->symbol->name = variableName;
-    new_object->symbol->index = variableIndex;
-    new_object->symbol->addr = variableAddress;
+    new_object->symbol->index = table_list.head->object_list->size;
+    new_object->symbol->addr = tmpAddr;
     new_object->symbol->lineno = yylineno;
-    variableAddress++;
+    if (variableType != OBJECT_TYPE_FUNCTION) {
+        variableAddress++;
+    }
     // Add the object to the object list
     PushObject(new_object, &table_list);
     return new_object;
@@ -331,6 +337,10 @@ bool objectExpAssign(const char* op, Object* dest, Object* val, Object* out) {
         isDone = objectExpShrAssign(dest, val, out);
     } else if (strcmp(op, "<<=") == 0) {
         isDone = objectExpShlAssign(dest, val, out);
+    } else if (strcmp(op, "++") == 0) {
+        isDone = objectExpIncAssign(dest, out);
+    } else if (strcmp(op, "--") == 0) {
+        isDone = objectExpDecAssign(dest, out);
     } else {
         isDone = false;
     }
@@ -463,7 +473,7 @@ void pushFunParm(ObjectType variableType, char* variableName, int variableFlag) 
 }
 
 void clearMainFunParm(char* funcName) {
-    Object* funcObj = findVariable_mainTable(funcName);
+    Object* funcObj = findVariable_mainTable_func(funcName);
 
     FunctionParmTypeNode* curr = func_parm_list.head;
     char *func_sig = strdup("("), *new_func_sig;
@@ -532,10 +542,19 @@ void createFunction(ObjectType variableType, char* funcName) {
         funcObj->symbol->func_sig = strdup("I");
 }
 
+Object* callFunction(char* funcName) {
+    Object* funcObj = findVariable_mainTable(funcName);
+    PrintIdent(funcName);
+
+    printf("call: %s%s\n", funcName, funcObj->symbol->func_sig);
+    return funcObj;
+}
+
 void debugPrintInst(char instc, Object* a, Object* b, Object* out) {
 }
 
 bool defineVariable(Object* variable, Object* value) {
+    // TODO: implement implicit casting
     if (variable == NULL) {
         return false;
     }
@@ -545,12 +564,18 @@ bool defineVariable(Object* variable, Object* value) {
     }
 
     variable->value = value->value;
+    if (variable->type == OBJECT_TYPE_AUTO) {
+        variable->type = value->type;
+    }
     return true;
 }
 
 void pushFunInParm(Object* variable) {
     FunctionParmTypeNode* new_node = (FunctionParmTypeNode*)malloc(sizeof(FunctionParmTypeNode));
-    new_node->type = variable->type;
+    if (variable->type == OBJECT_TYPE_FUNCTION) {
+        new_node->type = funcReturnType(variable);
+    } else
+        new_node->type = variable->type;
     new_node->value = variable->value;
     new_node->next = NULL;
     if (cout_parm_list.head == NULL) {

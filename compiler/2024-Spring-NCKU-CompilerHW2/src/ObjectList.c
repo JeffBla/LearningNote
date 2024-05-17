@@ -17,6 +17,8 @@ void PushObject(Object* object, TableList* table_list) {
         object_list->head->prev = new_object_node;
         object_list->head = new_object_node;
     }
+
+    object_list->size++;
 }
 
 void FreeObject(Object* object) {

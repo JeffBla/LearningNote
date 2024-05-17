@@ -10,6 +10,7 @@ void PushTable(TableList* table_list) {
     TableListNode* new_table_node = (TableListNode*)malloc(sizeof(TableListNode));
     new_table_node->object_list = (ObjectList*)malloc(sizeof(ObjectList));
     new_table_node->object_list->head = NULL;
+    new_table_node->object_list->size = 0;
     new_table_node->next = NULL;
     if (table_list->head == NULL) {
         table_list->head = new_table_node;

@@ -131,6 +131,12 @@ bool objectDiv(Object* a, Object* b, Object* out) {
 }
 
 bool objectRem(Object* a, Object* b, Object* out) {
+    if (b->value == 0) {
+        b->value = 1;
+    }
+    if (a->value == 0) {
+        a->value = 1;
+    }
     out->value = a->value % b->value;
     return true;
 }
@@ -355,11 +361,17 @@ bool objectShlAssign(Object* a, Object* b, Object* out) {
 }
 
 bool objectIncAssign(Object* a, Object* out) {
-    return false;
+    Object b;
+    b.type = OBJECT_TYPE_INT;
+    b.value = 1;
+    return objectAddAssign(a, &b, out);
 }
 
 bool objectDecAssign(Object* a, Object* out) {
-    return false;
+    Object b;
+    b.type = OBJECT_TYPE_INT;
+    b.value = 1;
+    return objectSubAssign(a, &b, out);
 }
 
 bool objectCast(ObjectType variableType, Object* dest, Object* out) {

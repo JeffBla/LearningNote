@@ -1,6 +1,6 @@
 > Create symbol table (scope level 0)
 func: check
-> Insert `check` (addr: 0) to scope level 0
+> Insert `check` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
 > Insert `a` (addr: 0) to scope level 1
 > Insert `b` (addr: 1) to scope level 1
@@ -30,10 +30,32 @@ Index     Name                Type      Addr      Lineno    Func_sig
 func: main
 > Insert `main` (addr: -1) to scope level 0
 > Create symbol table (scope level 1)
-> Insert `argv` (addr: 0) to scope level 1
-IDENT (name=check, address=0)
-> Insert `result` (addr: 1) to scope level 1
-/home/share/hw2/input/subtask09-function/testcase01.cpp:7:24: error:  syntax error
-     7 |    bool result = check( ,2,"apple",true);
-       |                       ^
-Total lines: 7
+> Insert `argv` (addr: 4) to scope level 1
+INT_LIT 1
+INT_LIT 2
+STR_LIT "apple"
+BOOL_LIT TRUE
+IDENT (name=check, address=-1)
+call: check(IILjava/lang/String;B)B
+> Insert `result` (addr: 5) to scope level 1
+IDENT (name=result, address=5)
+INT_LIT 7
+ADD
+> Insert `num` (addr: 6) to scope level 1
+IDENT (name=num, address=6)
+IDENT (name=endl, address=-1)
+cout int string
+INT_LIT 0
+RETURN
+
+> Dump symbol table (scope level: 1)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         argv                string    4         6         -         
+1         result              bool      5         7         -         
+2         num                 int       6         8         -         
+
+> Dump symbol table (scope level: 0)
+Index     Name                Type      Addr      Lineno    Func_sig  
+0         check               function  -1        1         (IILjava/lang/String;B)B
+1         main                function  -1        6         ([Ljava/lang/String;)I
+Total lines: 12

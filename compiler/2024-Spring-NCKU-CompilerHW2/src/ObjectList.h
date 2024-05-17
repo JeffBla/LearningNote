@@ -18,6 +18,7 @@ typedef struct ObjectNode {
 
 typedef struct objectList {
     ObjectNode* head;
+    size_t size;
 } ObjectList;
 
 /// Act as stack

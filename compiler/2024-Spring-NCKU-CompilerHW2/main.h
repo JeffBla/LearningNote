@@ -36,11 +36,13 @@ void pushFunParm(ObjectType variableType, char* variableName, int parmFlag);
 void createFunction(ObjectType variableType, char* funcName);
 void clearMainFunParm();
 void clearFunParm(FunctionParmList* target_func_parm_list);
+Object* callFunction(char* funcName);
 void pushFunInParm(Object* variable);
 
 bool defineVariable(Object* variable, Object* value);
 
 Object* findVariable_mainTable(char* variableName);
+Object* findVariable_mainTable_func(char* variableName);
 Object* createVariable(ObjectType variableType, char* variableName, int variableFlag);
 ObjectType PrintIdent(char* ident_name);
 

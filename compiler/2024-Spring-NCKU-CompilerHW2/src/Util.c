@@ -34,6 +34,48 @@ Object* findVariable(char* variableName, TableList* table_list) {
     return NULL;
 }
 
+Object* findVariable_func(char* variableName, TableList* table_list) {
+    if (variableName == NULL) {
+        return NULL;
+    }
+
+    // Search the variable in the symbol table include the current one & the parents
+    TableListNode* curr_table_node = FindCurrTableNode(table_list);
+    ObjectNode* obj_node;
+    while (curr_table_node != NULL) {
+        obj_node = curr_table_node->object_list->head;
+        while (obj_node != NULL) {
+            if ((obj_node->object->type == OBJECT_TYPE_FUNCTION) && (strcmp(obj_node->object->symbol->name, variableName) == 0)) {
+                return obj_node->object;
+            }
+            obj_node = obj_node->next;
+        }
+
+        curr_table_node = curr_table_node->next;
+    }
+
+    fprintf(stderr, "Error: function `%s` not found\n", variableName);
+    return NULL;
+}
+
+ObjectType funcReturnType(Object* func) {
+    int len = strlen(func->symbol->func_sig);
+    switch (func->symbol->func_sig[len - 1]) {
+        case 'I':
+            return OBJECT_TYPE_INT;
+        case 'F':
+            return OBJECT_TYPE_FLOAT;
+        case 'B':
+            return OBJECT_TYPE_BOOL;
+        case ';':
+            return OBJECT_TYPE_STR;
+        case 'V':
+            return OBJECT_TYPE_VOID;
+        default:
+            return OBJECT_TYPE_UNDEFINED;
+    }
+}
+
 char* strcat_copy(const char* str1, const char* str2) {
     int str1_len, str2_len;
     char* new_str;
