@@ -66,6 +66,7 @@ extern FILE* yyout;
 extern FILE* yyin;
 extern bool compileError;
 extern int scopeLevel;
+extern int funcArgStartAddr;
 int yyparse();
 int yylex();
 int yylex_destroy();

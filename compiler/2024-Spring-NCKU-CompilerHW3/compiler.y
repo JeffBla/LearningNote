@@ -10,6 +10,7 @@
     Object *pTmpObj = NULL;
 
     ObjectType curr_type;    
+    ObjectType func_return_type;
 %}
 
 /* Variable or self-defined structure */
@@ -122,7 +123,7 @@ ArrayInitExpression
 
 /* Function */
 FunctionDefStmt
-    :  VARIABLE_T IDENT { createFunction($<var_type>1, $<s_var>2); pushScope(); }'(' FunctionParameterStmtList ')' { clearMainFunParm($<s_var>2); } '{' StmtList '}' { dumpScope(); if(!functionEnd($<var_type>1)) YYABORT; }
+    :  VARIABLE_T IDENT { func_return_type = $<var_type>1; createFunction(func_return_type, $<s_var>2); pushScope(); }'(' FunctionParameterStmtList ')' { clearMainFunParm($<s_var>2); } '{' StmtList '}' { dumpScope(); if(!functionEnd(func_return_type)) YYABORT; }
 ;
 FunctionParameterStmtList 
     : FunctionParameterStmtList ',' FunctionParameterStmt
@@ -150,7 +151,7 @@ Stmt
     | WhileStmt
     | ForStmt
     | BREAK ';' { if(!breakLoop()) YYABORT; }
-    | RETURN Expression ';' { /* if(!returnObject(&$<object_val>2)) YYABORT; */ printf("RETURN\n"); }
+    | RETURN Expression ';' { if(!returnObject(&$<object_val>2, func_return_type)) YYABORT; printf("RETURN\n"); }
     | RETURN ';' { /* codeRaw("return"); */ printf("RETURN\n"); }
 ;
 

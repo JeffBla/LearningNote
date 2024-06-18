@@ -412,13 +412,13 @@ bool objectAssign(Object* a, Object* b, Object* out) {
             fprintf(stderr, "Error: unsupported type for array\n");
         }
     } else if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_STR) {
-        code("astore %d", a->symbol->addr);
+        code("astore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -429,11 +429,11 @@ bool objectAddAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -444,11 +444,11 @@ bool objectSubAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -459,11 +459,11 @@ bool objectMulAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -474,11 +474,11 @@ bool objectDivAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -489,11 +489,11 @@ bool objectRemAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -504,11 +504,11 @@ bool objectBanAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -519,11 +519,11 @@ bool objectBorAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -534,11 +534,11 @@ bool objectBxoAssign(Object* a, Object* b, Object* out) {
 
     // code gen
     if (a->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", a->symbol->addr);
+        code("fstore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -547,9 +547,9 @@ bool objectShrAssign(Object* a, Object* b, Object* out) {
     bool isDone = objectShr(a, b, out);
     a->value = out->value;
     if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -558,9 +558,9 @@ bool objectShlAssign(Object* a, Object* b, Object* out) {
     bool isDone = objectShl(a, b, out);
     a->value = out->value;
     if (a->type == OBJECT_TYPE_INT) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     } else if (a->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", a->symbol->addr);
+        code("istore %d", a->symbol->addr - funcArgStartAddr);
     }
     return true;
 }

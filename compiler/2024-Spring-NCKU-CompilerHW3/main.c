@@ -119,15 +119,15 @@ bool identExp(char* ident_name, Object* out) {
 
         // code gen
         if (out->flag == VAR_FLAG_ARRAY) {
-            code("aload %d", out->symbol->addr);
+            code("aload %d", out->symbol->addr - funcArgStartAddr);
         } else if (out->type == OBJECT_TYPE_INT) {
-            code("iload %d", out->symbol->addr);
+            code("iload %d", out->symbol->addr - funcArgStartAddr);
         } else if (out->type == OBJECT_TYPE_FLOAT) {
-            code("fload %d", out->symbol->addr);
+            code("fload %d", out->symbol->addr - funcArgStartAddr);
         } else if (out->type == OBJECT_TYPE_BOOL) {
-            code("iload %d", out->symbol->addr);
+            code("iload %d", out->symbol->addr - funcArgStartAddr);
         } else if (out->type == OBJECT_TYPE_STR) {
-            code("aload %d", out->symbol->addr);
+            code("aload %d", out->symbol->addr - funcArgStartAddr);
         }
     } else {
         out->value = StringLiteral2Uint64("\\n");
@@ -392,13 +392,13 @@ bool objectIdentLoad(char* ident_name) {
     Object* target = findVariable_mainTable(ident_name);
     if (target != NULL) {
         if (target->type == OBJECT_TYPE_INT) {
-            code("iload %d", target->symbol->addr);
+            code("iload %d", target->symbol->addr - funcArgStartAddr);
         } else if (target->type == OBJECT_TYPE_FLOAT) {
-            code("fload %d", target->symbol->addr);
+            code("fload %d", target->symbol->addr - funcArgStartAddr);
         } else if (target->type == OBJECT_TYPE_BOOL) {
-            code("iload %d", target->symbol->addr);
+            code("iload %d", target->symbol->addr - funcArgStartAddr);
         } else if (target->type == OBJECT_TYPE_STR) {
-            code("aload %d", target->symbol->addr);
+            code("aload %d", target->symbol->addr - funcArgStartAddr);
         }
         return true;
     }
@@ -606,6 +606,8 @@ void createFunction(ObjectType variableType, char* funcName) {
         else
             funcObj->symbol->func_sig = strdup("I");
     }
+
+    funcArgStartAddr = variableAddress;
 }
 
 Object* callFunction(char* funcName) {
@@ -639,13 +641,13 @@ bool defineVariable(Object* variable, Object* value) {
 
     // code gen
     if (variable->type == OBJECT_TYPE_INT) {
-        code("istore %d", variable->symbol->addr);
+        code("istore %d", variable->symbol->addr - funcArgStartAddr);
     } else if (variable->type == OBJECT_TYPE_FLOAT) {
-        code("fstore %d", variable->symbol->addr);
+        code("fstore %d", variable->symbol->addr - funcArgStartAddr);
     } else if (variable->type == OBJECT_TYPE_BOOL) {
-        code("istore %d", variable->symbol->addr);
+        code("istore %d", variable->symbol->addr - funcArgStartAddr);
     } else if (variable->type == OBJECT_TYPE_STR) {
-        code("astore %d", variable->symbol->addr);
+        code("astore %d", variable->symbol->addr - funcArgStartAddr);
     }
     return true;
 }
@@ -701,12 +703,29 @@ void ClearCoutParm() {
     clearFunParm(&cout_parm_list);
 }
 
-bool returnObject(Object* obj) {
+bool returnObject(Object* obj, ObjectType returnType) {
     bool isDone = false;
+
+    isDone = true;
+
+    // code gen
     if (isMain) {
-        isDone = true;
+        // do nothing
+        // handle by functionEnd
+    } else {
+        if (returnType == OBJECT_TYPE_INT) {
+            codeRaw("ireturn");
+        } else if (returnType == OBJECT_TYPE_FLOAT) {
+            codeRaw("freturn");
+        } else if (returnType == OBJECT_TYPE_BOOL) {
+            codeRaw("ireturn");
+        } else if (returnType == OBJECT_TYPE_STR) {
+            codeRaw("areturn");
+        } else {
+            codeRaw("return");
+        }
+        return isDone;
     }
-    return isDone;
 }
 
 bool breakLoop() {
@@ -905,7 +924,7 @@ bool arrayCreate(Object* arr) {
 
     // code gen
     code("newarray %s", objectTypeName[arr->type]);
-    code("astore %d", arr->symbol->addr);
+    code("astore %d", arr->symbol->addr - funcArgStartAddr);
     return isDone;
 }
 
@@ -941,7 +960,7 @@ bool multiArrayCreate(ObjectType type, int dim, Object* arr) {
     sprintf(dimString, "%d", dim);
     strcat(multiArrCode, dimString);
     code("%s", multiArrCode);
-    code("astore %d", arr->symbol->addr);
+    code("astore %d", arr->symbol->addr - funcArgStartAddr);
     return isDone;
 }
 

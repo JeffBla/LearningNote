@@ -48,7 +48,7 @@ ObjectType PrintIdent(char* ident_name);
 void functionBegin(ObjectType returnType, char* funcName);
 bool functionEnd(ObjectType returnType);
 
-bool returnObject(Object* obj);
+bool returnObject(Object* obj, ObjectType returnType);
 bool breakLoop();
 
 // void functionArgsBegin();

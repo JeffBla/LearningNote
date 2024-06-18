@@ -1,6 +1,7 @@
 #include "Util.h"
 
 int scopeLevel = 0;  // scope level equ to the size of the table list
+int funcArgStartAddr = 0;
 
 const char* objectTypeName[] = {
     [OBJECT_TYPE_UNDEFINED] = "undefined",
