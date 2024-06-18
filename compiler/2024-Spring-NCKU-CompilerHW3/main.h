@@ -126,6 +126,7 @@ bool forEnd();
 
 bool arrayCreate(Object* arr);
 bool objectArrayGet(Object* arr);
+bool multiArrayCreate(ObjectType type, int dim, Object* arr);
 // LinkedList* arraySubscriptBegin(Object* index);
 // bool arraySubscriptPush(LinkedList* arraySubscripts, Object* index);
 // bool arraySubscriptEnd(LinkedList* arraySubscripts);

@@ -926,6 +926,25 @@ bool objectArrayGet(Object* arr) {
     return isDone;
 }
 
+bool multiArrayCreate(ObjectType type, int dim, Object* arr) {
+    bool isDone = false;
+
+    isDone = true;
+
+    // code gen
+    char multiArrCode[100] = "multianewarray ", javaTypeString[30], dimString[10];
+    for (int i = 0; i < dim; i++) {
+        strcat(multiArrCode, "[");
+    }
+    sprintf(javaTypeString, "%s ", objectJavaTypeName[type]);
+    strcat(multiArrCode, javaTypeString);
+    sprintf(dimString, "%d", dim);
+    strcat(multiArrCode, dimString);
+    code("%s", multiArrCode);
+    code("astore %d", arr->symbol->addr);
+    return isDone;
+}
+
 int main(int argc, char* argv[]) {
     char* outputFileName = NULL;
     if (argc == 3) {

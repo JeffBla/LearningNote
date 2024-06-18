@@ -98,7 +98,7 @@ DeclareVariable
     : IDENT {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_DEFAULT); }
     | '*' IDENT {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER); }
     | IDENT '[' Expression ']' {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_ARRAY);  if(!arrayCreate(&$$)) YYABORT; }
-    | IDENT '[' Expression ']' '[' Expression ']' {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_ARRAY); }
+    | IDENT '[' Expression ']' '[' Expression ']' {$$ = *createVariable(curr_type, $<s_var>1, VAR_FLAG_ARRAY); if(!multiArrayCreate(curr_type, 2, &$$)) YYABORT; }
     | '*' IDENT '[' ']' {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER | VAR_FLAG_ARRAY); }
     | '*' IDENT '[' Expression ']' {$$ = *createVariable(curr_type, $<s_var>2, VAR_FLAG_POINTER | VAR_FLAG_ARRAY); }
     ;
@@ -236,6 +236,7 @@ ExprAssign
 
 ExprArrAssign
     : ArrayIdent '[' Expression ']' EQL_ASSIGN Expression { $$ = *pTmpObj; if(!objectExpAssign("=", &$$, &$<object_val>6, &$$)) YYABORT; }
+    | ArrayIdent '[' Expression ']' { codeRaw("aaload"); } '[' Expression ']' EQL_ASSIGN Expression { $$ = *pTmpObj; if(!objectExpAssign("=", &$$, &$<object_val>8, &$$)) YYABORT; }
 ;
 
 
@@ -310,7 +311,7 @@ ExprNotBntNeg
 ExprFinal
     : '(' Expression ')' { $$ = $2; }
     | ArrayIdent '[' Expression ']' { $$ = *pTmpObj; PrintIdent($<s_var>1); if(!objectArrayGet(&$$)) YYABORT; }
-    | ArrayIdent '[' Expression ']' '[' Expression ']' { $$ = *findVariable_mainTable($<s_var>1); PrintIdent($<s_var>1); }
+    | ArrayIdent '[' Expression ']' { codeRaw("aaload"); } '[' Expression ']' { $$ = *findVariable_mainTable($<s_var>1); PrintIdent($<s_var>1); if(!objectArrayGet(&$$)) YYABORT; }
     | IDENT '(' ExpressionList ')' { $$ = *callFunction($<s_var>1); }
     | ExprFinal INC_ASSIGN { if(!objectExpAssign("++", &$<object_val>1, &$<object_val>1, &$$)) YYABORT; }
     | ExprFinal DEC_ASSIGN { if(!objectExpAssign("--", &$<object_val>1, &$<object_val>1, &$$)) YYABORT; }
