@@ -1,5 +1,14 @@
+__pycache__
+venv
+.ipynb_checkpoints
+.idea
+
 openmp_test
 compiler/2024-Spring-NCKU-CompilerHW2/result
 OS/shell_exercise/.idea
 OS/shell_exercise/cmake-build-debug
 softwareDesign\hw2\hw2_1\.idea
+Dataset_OpenCvDl_Hw1
+data
+softwareDesign/exam1
+softwareDesign/lab
