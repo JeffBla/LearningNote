@@ -1,0 +1,8 @@
+{
+  "files.associations": {
+    "*.embeddedhtml": "html",
+    "*.m": "matlab",
+    "sstream": "cpp",
+    "iostream": "cpp"
+  }
+}
