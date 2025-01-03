@@ -1,8 +1,14 @@
 {
   "files.associations": {
+    "*.ndjson": "jsonl",
+    "*.dbclient-js": "javascript",
     "*.embeddedhtml": "html",
     "*.m": "matlab",
     "sstream": "cpp",
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "array": "cpp",
+    "string_view": "cpp",
+    "initializer_list": "cpp",
+    "utility": "cpp"
   }
 }
