@@ -10,5 +10,6 @@
     "string_view": "cpp",
     "initializer_list": "cpp",
     "utility": "cpp"
-  }
+  },
+  "C_Cpp.default.compilerPath": "d:\\Software\\msys2\\ucrt64\\bin\\g++.exe"
 }
