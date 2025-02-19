@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "*.sqlbook": "sql",
     "*.ndjson": "jsonl",
     "*.dbclient-js": "javascript",
     "*.embeddedhtml": "html",
@@ -9,7 +10,8 @@
     "array": "cpp",
     "string_view": "cpp",
     "initializer_list": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "vector": "cpp"
   },
   "C_Cpp.default.compilerPath": "d:\\Software\\msys2\\ucrt64\\bin\\g++.exe"
 }
